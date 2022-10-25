@@ -1,0 +1,25 @@
+{% extends  "main.html" %}
+
+{% load static %}
+
+ {% block content %}
+
+    {% if request.user.is_authenticated %}
+    <div>
+        <img src="{{MEDIA_URL}}/images/{{user.avatar}}" alt="img" height="150"/>
+        <p>username: {{request.user.username}}</p>
+        <p>first name: {{request.user.first_name}}</p>
+        <p>last name: {{request.user.last_name}}</p>
+        <p>bio: {{request.user.bio}}</p>
+    </div>
+
+    <div>
+        <a href="{% url 'profile settings' %}">Update info</a> <br/>
+        <a href="{% url 'delete user' %}">Delete profile</a>
+    </div>
+
+    {% else %}
+        <p>You need to log in to access this page.</p>
+    {% endif %}
+
+{% endblock %}

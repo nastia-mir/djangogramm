@@ -1,0 +1,13 @@
+<a href="/">
+    <h1>DjangoGramm</h1>
+</a>
+
+
+{% if request.user.is_authenticated %}
+    <a href="{% url 'logout' %}">Logout</a>
+    <p>Hello, <a href="{% url 'profile'%}">{{request.user.first_name}}</a> </p>
+    <a href="{% url 'new post' %}">New post</a>
+{% else %}
+    <a href="{% url 'login' %}">Login</a>
+    <a href="{% url 'register' %}">Register</a>
+{% endif %}

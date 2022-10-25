@@ -1,0 +1,16 @@
+{% extends  "main.html" %}
+
+{% block content %}
+
+{% if request.user.is_authenticated %}
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{form.as_p}}
+        <input type="submit" value="Save" />
+    </form>
+{% else %}
+    <p>You need to log in to access this page.</p>
+{% endif %}
+
+
+{% endblock %}
