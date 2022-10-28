@@ -2,9 +2,16 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-
 from .forms import DjGUserSettingsForm, DjGUserCreationForm, PostForm, ImageForm
 from .models import DjGUser, Post, Image
+
+
+def home(request):
+    posts = Post.objects.all().order_by('-post_id')
+    images = [Image.objects.filter(post=post.post_id).first() for post in posts]
+    context = {'posts': posts,
+               'images': images}
+    return render(request, 'home.html', context)
 
 
 def login_user(request):
@@ -37,6 +44,7 @@ def register(request):
 
     if request.method == 'POST':
         form = DjGUserCreationForm(request.POST)
+
         if form.is_valid():
             user = form.save(commit=False)
             user.email = user.email.lower()
@@ -44,7 +52,10 @@ def register(request):
             login(request, user)
             return redirect('profile')
         else:
-            messages.error(request, 'Something went wrong.')
+            try:
+                existing_user = DjGUser.objects.get(email=form.email)
+            except:
+                messages.error(request, 'This email is already used.')
 
     return render(request, 'register.html', context)
 
@@ -73,17 +84,6 @@ def profile_settings(request):
 
 
 @login_required(login_url='login')
-def delete_user(request):
-    user = request.user
-    if request.method == 'POST':
-        user.delete()
-        return redirect('home')
-
-    context = {'user': user}
-    return render(request, 'delete_user.html', context)
-
-
-@login_required(login_url='login')
 def new_post(request):
     img_form = ImageForm()
     form = PostForm()
@@ -106,12 +106,15 @@ def new_post(request):
     return render(request, 'new_post.html', context)
 
 
-def show_posts(request):
-    posts = Post.objects.all().order_by('-post_id')
-    images = [Image.objects.filter(post=post.post_id).first() for post in posts]
-    context = {'posts': posts,
-               'images': images}
-    return render(request, 'home.html', context)
+@login_required(login_url='login')
+def delete_user(request):
+    user = request.user
+    if request.method == 'POST':
+        user.delete()
+        return redirect('home')
+
+    context = {'user': user}
+    return render(request, 'delete_user.html', context)
 
 
 def show_one_post(request, post_id):
@@ -141,4 +144,5 @@ def delete_post(request, post_id):
 
 
 def show_likes(request):
+    # not done
     return render(request, 'show_likes.html')
