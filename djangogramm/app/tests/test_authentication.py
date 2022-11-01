@@ -1,6 +1,5 @@
-from django.test import SimpleTestCase, Client, TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
-from django.contrib.messages import get_messages
 from .. import views
 from ..models import DjGUser
 
@@ -18,8 +17,12 @@ class TestAuth(TestCase):
             'password1': 'strongpassword',
             'password2': 'strongpassword'
         }
+        self.user_login_data = {
+            'email': 'test.email@gmail.com',
+            'username': 'username',
+            'first_name': 'John'
+        }
         return super().setUp()
-
 
     def test_register_pageview(self):
         response = self.client.get(self.register_url)
@@ -36,14 +39,17 @@ class TestAuth(TestCase):
         self.assertEqual(response.status_code, 200)
         assert b'This email is already used.' in response.content
 
-
-
-
-
     def test_login_pageview(self):
         response = self.client.get(self.login_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'login.html')
+
+    def test_login_user(self):
+        self.client.post(self.register_url, self.user)
+        response = self.client.post(self.login_url, self.user_login_data)
+        print(response.content)
+        self.assertEqual(response.status_code, 302)
+
 
 
 
