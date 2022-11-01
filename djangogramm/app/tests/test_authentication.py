@@ -1,12 +1,12 @@
-from django.test import SimpleTestCase, Client, TransactionTestCase
+from django.test import SimpleTestCase, Client, TestCase
 from django.urls import reverse
+from django.contrib.messages import get_messages
 from .. import views
 from ..models import DjGUser
 
 
-class TestAuth(TransactionTestCase):
-
-    def SetUp(self):
+class TestAuth(TestCase):
+    def setUp(self):
         self.client = Client()
         self.register_url = reverse('register')
         self.login_url = reverse('login')
@@ -18,9 +18,30 @@ class TestAuth(TransactionTestCase):
             'password1': 'strongpassword',
             'password2': 'strongpassword'
         }
+        return super().setUp()
 
-    def test_login_page(self):
-        response = self.client.get(reverse('login'))
+
+    def test_register_pageview(self):
+        response = self.client.get(self.register_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'register.html')
+
+    def test_register_user(self):
+        response = self.client.post(self.register_url, self.user)
+        self.assertEqual(response.status_code, 302)
+
+    def test_register_used_email(self):
+        self.client.post(self.register_url, self.user)
+        response = self.client.post(self.register_url, self.user)
+        self.assertEqual(response.status_code, 200)
+        assert b'This email is already used.' in response.content
+
+
+
+
+
+    def test_login_pageview(self):
+        response = self.client.get(self.login_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'login.html')
 
@@ -30,18 +51,10 @@ class TestAuth(TransactionTestCase):
 
 
 
-    def test_logout_page(self):
-        response = self.client.get(reverse('logout'))
-        self.assertEqual(response.status_code, 200)
+    def test_logout_pageview(self):
+        response = self.client.get(self.logout_url)
+        self.assertEqual(response.status_code, 302)
 
 
 
 
-    def test_register_page(self):
-        response = self.client.get(reverse('register'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'register.html')
-
-    def test_register_user(self):
-        response = self.client.post(self.register_url, self.user)
-        self.assertEqual(response.status_code, 200)
