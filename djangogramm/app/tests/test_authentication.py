@@ -29,41 +29,41 @@ class TestAuth(TestCase):
         }
         return super().setUp()
 
-    def test_register_pageview(self):
+    def test_register_GET(self):
         response = self.client.get(self.register_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'register.html')
 
-    def test_register_user(self):
+    def test_register_POST(self):
         response = self.client.post(self.register_url, self.user)
         self.assertEqual(response.status_code, 302)
 
-    def test_register_used_email(self):
+    def test_register_POST_used_email(self):
         self.client.post(self.register_url, self.user)
         response = self.client.post(self.register_url, self.user)
         self.assertEqual(response.status_code, 200)
         assert b'This email is already used.' in response.content
 
-    def test_login_pageview(self):
+    def test_login_GET(self):
         response = self.client.get(self.login_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'login.html')
 
-    def test_login_correctly(self):
+    def test_login_POST_logged_in_correctly(self):
         self.client.post(self.register_url, self.user)
         response = self.client.post(self.login_url, self.user_login_correctly)
         self.assertEqual(response.status_code, 302)
 
-    def test_login_user_not_exist(self):
+    def test_login_POST_user_not_exist(self):
         response = self.client.post(self.login_url, self.user_not_exist)
         self.assertEqual(response.status_code, 200)
         assert b'User does not exist.' in response.content
 
-    def test_login_wrong_password(self):
+    def test_login_POST_wrong_password(self):
         response = self.client.post(self.login_url, self.login_wrong_password)
         self.assertEqual(response.status_code, 200)
         assert b'Wrong email or password.' in response.content
 
-    def test_logout(self):
+    def test_logout_GET(self):
         response = self.client.get(self.logout_url)
         self.assertEqual(response.status_code, 302)
