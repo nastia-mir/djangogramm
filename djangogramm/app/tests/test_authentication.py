@@ -17,10 +17,17 @@ class TestAuth(TestCase):
             'password1': 'strongpassword',
             'password2': 'strongpassword'
         }
-        self.user_login_data = {
+        self.user_login_correctly = {
             'email': 'test.email@gmail.com',
-            'username': 'username',
-            'first_name': 'John'
+            'password': 'strongpassword'
+        }
+        self.user_not_exist = {
+            'email': 'not.exist@gmail.com',
+            'password': 'strongpassword'
+        }
+        self.login_wrong_password = {
+            'email': 'test.email@gmail.com',
+            'password': 'wrongpassword'
         }
         return super().setUp()
 
@@ -44,23 +51,21 @@ class TestAuth(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'login.html')
 
-    def test_login_user(self):
+    def test_login_correctly(self):
         self.client.post(self.register_url, self.user)
-        response = self.client.post(self.login_url, self.user_login_data)
-        print(response.content)
+        response = self.client.post(self.login_url, self.user_login_correctly)
         self.assertEqual(response.status_code, 302)
 
+    def test_login_user_not_exist(self):
+        response = self.client.post(self.login_url, self.user_not_exist)
+        self.assertEqual(response.status_code, 200)
+        assert b'User does not exist.' in response.content
 
+    def test_login_wrong_password(self):
+        response = self.client.post(self.login_url, self.login_wrong_password)
+        self.assertEqual(response.status_code, 200)
+        assert b'Wrong email or password.' in response.content
 
-
-
-
-
-
-    def test_logout_pageview(self):
+    def test_logout(self):
         response = self.client.get(self.logout_url)
         self.assertEqual(response.status_code, 302)
-
-
-
-
