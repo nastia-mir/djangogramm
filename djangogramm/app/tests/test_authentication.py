@@ -1,7 +1,5 @@
 from django.test import Client, TestCase
 from django.urls import reverse
-from .. import views
-from ..models import DjGUser
 
 
 class TestAuth(TestCase):
