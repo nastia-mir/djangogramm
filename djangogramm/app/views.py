@@ -112,7 +112,6 @@ def delete_user(request):
     if request.method == 'POST':
         user.delete()
         return redirect('home')
-
     context = {'user': user}
     return render(request, 'delete_user.html', context)
 

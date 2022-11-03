@@ -1,19 +1,18 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.forms import ModelForm, ImageField, ClearableFileInput
-
 from .models import DjGUser, Post, Image
-
-
-class DjGUserSettingsForm(ModelForm):
-    class Meta:
-        model = DjGUser
-        fields = ['username', 'first_name', 'last_name', 'bio', 'avatar']
 
 
 class DjGUserCreationForm(UserCreationForm):
     class Meta:
         model = DjGUser
         fields = ['email', 'username', 'first_name', 'password1', 'password2']
+
+
+class DjGUserSettingsForm(ModelForm):
+    class Meta:
+        model = DjGUser
+        fields = ['username', 'first_name', 'last_name', 'bio', 'avatar']
 
 
 class ImageForm(ModelForm):
