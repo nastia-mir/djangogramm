@@ -1,7 +1,7 @@
 {% extends  "main.html" %}
 
 {% block content %}
-{% if request.user.is_authenticated %}
+{% if request.user.is_authenticated and request.user == post.user %}
 
     <h2>Are you sure you want to delete post {{post.post_id}}?</h2>
 
@@ -10,8 +10,6 @@
           <input type="submit" value="Delete post" />
      </form>
 
-{% else %}
-    <p>You need to log in to access this page.</p>
 {% endif %}
 
 

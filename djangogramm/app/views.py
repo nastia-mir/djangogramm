@@ -135,8 +135,11 @@ def delete_post(request, post_id):
     except:
         return redirect('home')
 
-    if request.method == 'POST':
-        post.delete()
+    if request.user == post.user:
+        if request.method == 'POST':
+            post.delete()
+            return redirect('home')
+    else:
         return redirect('home')
 
     context = {'post': post}

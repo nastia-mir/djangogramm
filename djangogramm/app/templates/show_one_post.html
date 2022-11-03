@@ -15,6 +15,8 @@
             #{{ tag }}
         {% endfor %}</p>
 
+        {% if request.user.is_authenticated and request.user == post.user %}
         <a href="{% url 'delete post' post_id=post.post_id %}">Delete post</a>
+        {% endif %}
     </div>
 {% endblock %}
