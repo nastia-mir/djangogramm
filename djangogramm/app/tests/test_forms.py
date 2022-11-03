@@ -47,5 +47,27 @@ class TestForms(TestCase):
     def test_djguser_settings_no_data(self):
         form = DjGUserSettingsForm(data={}, files={})
         self.assertFalse(form.is_valid())
-        self.assertEqual(len(form.errors), 5)
+        self.assertEqual(len(form.errors), 4)
+
+    def test_image_valid_data(self):
+        form = ImageForm(
+            files={'image': self.test_image}
+        )
+        self.assertTrue(form.is_valid())
+
+    def test_image_no_data(self):
+        form = ImageForm(files={})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(len(form.errors), 1)
+
+    def test_post_valid_data(self):
+        form = PostForm(
+            data={'tags': 'some tags'}
+        )
+        self.assertTrue(form.is_valid())
+
+    def test_post_no_data(self):
+        form = PostForm(data={})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(len(form.errors), 1)
 
