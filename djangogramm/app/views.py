@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from .forms import DjGUserSettingsForm, DjGUserCreationForm, PostForm, ImageForm
+from .forms import DjGUserSettingsForm, ImageFormAvatar, DjGUserCreationForm, PostForm, ImageForm
 from .models import DjGUser, Post, Image
 
 
@@ -66,20 +66,31 @@ def confirm_email(request):
 
 
 def show_profile(request):
-    return render(request, 'show_profile.html')
+    avatar = Image.objects.filter(user=request.user.user_id).last()
+    context = {'avatar': avatar}
+    return render(request, 'show_profile.html', context)
 
 
 @login_required(login_url='login')
 def profile_settings(request):
-    form = DjGUserSettingsForm(instance=request.user)
+    avatar = Image.objects.filter(user=request.user.user_id).last()
+    user_form = DjGUserSettingsForm(instance=request.user)
+    avatar_form = ImageFormAvatar(instance=avatar)
     if request.method == 'POST':
-        form = DjGUserSettingsForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            form.save()
+        user_form = DjGUserSettingsForm(request.POST, instance=request.user)
+        avatar_form = ImageFormAvatar(request.POST, request.FILES, instance=avatar.image)
+        if user_form.is_valid() and avatar_form.is_valid():
+            user_form.save()
+            avatar = request.FILES.get('image')
+            image = Image(image=avatar, user=request.user)
+            image.save()
             return redirect("profile")
         else:
             messages.error(request, 'Something went wrong.')
-    context = {'form': form}
+    context = {
+        'user_form': user_form,
+        'avatar_form': avatar_form
+               }
     return render(request, 'profile_settings.html', context)
 
 

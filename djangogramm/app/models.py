@@ -28,9 +28,9 @@ class DjGUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=254, unique=True)
     username = models.CharField(max_length=150, unique=True)
     first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100, blank=True)
     bio = models.TextField(null=True, blank=True)
-    avatar = models.ImageField(upload_to='images/', max_length=100)
+    # avatar = models.ImageField(upload_to='images/', max_length=100)
 
     is_staff = models.BooleanField(default=False)
 
@@ -56,7 +56,8 @@ class Post(models.Model):
 class Image(models.Model):
     image_id = models.AutoField(primary_key=True)
     image = models.ImageField(upload_to='images/', max_length=100)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(DjGUser, on_delete=models.CASCADE, blank=True, null=True)
 
     objects = models.Manager()
 

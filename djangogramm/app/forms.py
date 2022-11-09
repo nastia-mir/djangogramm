@@ -9,10 +9,18 @@ class DjGUserCreationForm(UserCreationForm):
         fields = ['email', 'username', 'first_name', 'password1', 'password2']
 
 
+class ImageFormAvatar(ModelForm):
+    image = ImageField(label='Avatar', widget=ClearableFileInput(attrs={'multiple': False}))
+
+    class Meta:
+        model = Image
+        fields = ['image']
+
+
 class DjGUserSettingsForm(ModelForm):
     class Meta:
         model = DjGUser
-        fields = ['username', 'first_name', 'last_name', 'bio', 'avatar']
+        fields = ['username', 'first_name', 'last_name', 'bio']
 
 
 class ImageForm(ModelForm):
