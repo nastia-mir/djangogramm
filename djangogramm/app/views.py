@@ -89,19 +89,18 @@ def profile_settings(request):
     avatar_form = ImageFormAvatar(instance=avatar)
     if request.method == 'POST':
         user_form = DjGUserSettingsForm(request.POST, instance=request.user)
-        avatar_form = ImageFormAvatar(request.POST, request.FILES, instance=avatar.image)
+        avatar_form = ImageFormAvatar(request.POST, request.FILES, instance=avatar)
         if user_form.is_valid() and avatar_form.is_valid():
             user_form.save()
             avatar = request.FILES.get('image')
-            image = Image(image=avatar, user=request.user)
-            image.save()
+            if avatar:
+                image = Image(image=avatar, user=request.user)
+                image.save()
             return redirect("profile")
         else:
             messages.error(request, 'Something went wrong.')
-    context = {
-        'user_form': user_form,
-        'avatar_form': avatar_form
-               }
+    context = {'user_form': user_form,
+               'avatar_form': avatar_form}
     return render(request, 'profile_settings.html', context)
 
 

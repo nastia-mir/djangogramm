@@ -1,5 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
-from django.forms import ModelForm, ImageField, ClearableFileInput
+from django.forms import ModelForm, ImageField, ClearableFileInput, FileInput
 from .models import DjGUser, Post, Image
 
 

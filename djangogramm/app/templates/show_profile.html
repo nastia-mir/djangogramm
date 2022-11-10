@@ -9,8 +9,12 @@
         <img src="{{MEDIA_URL}}/images/{{avatar.image}}" alt="img" height="150"/>
         <p>username: {{request.user.username}}</p>
         <p>first name: {{request.user.first_name}}</p>
+        {% if request.user.last_name|length > 0 %}
         <p>last name: {{request.user.last_name}}</p>
+        {% endif %}
+        {% if request.user.bio|length > 0 %}
         <p>bio: {{request.user.bio}}</p>
+         {% endif %}
     </div>
 
     <div>
