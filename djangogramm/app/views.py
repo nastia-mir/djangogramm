@@ -7,8 +7,7 @@ from .models import DjGUser, Post, Image
 
 
 def home(request):
-    posts = Post.objects.prefetch_related('image_set').order_by('-time_created')
-    print(posts)
+    posts = Post.objects.prefetch_related('images').order_by('-time_created')
     context = {'posts': posts}
     return render(request, 'home.html', context)
 
@@ -67,16 +66,12 @@ def confirm_email(request):
 def show_profile(request):
     uid = request.GET.get('uid', None)
     if not uid:
-        avatar = Image.objects.filter(user=request.user.user_id).last()
-        context = {'user': request.user,
-                   'avatar': avatar}
+        context = {'user': request.user}
         return render(request, 'show_profile.html', context)
     else:
         try:
             user = DjGUser.objects.get(user_id=uid)
-            avatar = Image.objects.filter(user=uid).last()
-            context = {'user': user,
-                       'avatar': avatar}
+            context = {'user': user}
             return render(request, 'show_profile.html', context)
         except:
             return redirect('home')
@@ -84,23 +79,27 @@ def show_profile(request):
 
 @login_required(login_url='login')
 def profile_settings(request):
-    avatar = Image.objects.filter(user=request.user.user_id).last()
     user_form = DjGUserSettingsForm(instance=request.user)
-    avatar_form = ImageFormAvatar(instance=avatar)
+    avatar_form = ImageFormAvatar(instance=request.user.avatar)
     if request.method == 'POST':
         user_form = DjGUserSettingsForm(request.POST, instance=request.user)
-        avatar_form = ImageFormAvatar(request.POST, request.FILES, instance=avatar)
+        avatar_form = ImageFormAvatar(request.POST, request.FILES, instance=request.user.avatar)
         if user_form.is_valid() and avatar_form.is_valid():
-            user_form.save()
+            user_form.save(commit=False)
             avatar = request.FILES.get('image')
             if avatar:
-                image = Image(image=avatar, user=request.user)
+                image = Image(image=avatar)
                 image.save()
+                request.user.avatar = image
+                user_form.save()
+            else:
+                user_form.save()
             return redirect("profile")
         else:
             messages.error(request, 'Something went wrong.')
     context = {'user_form': user_form,
-               'avatar_form': avatar_form}
+               'avatar_form': avatar_form
+    }
     return render(request, 'profile_settings.html', context)
 
 
@@ -112,14 +111,17 @@ def new_post(request):
         form = PostForm(request.POST)
         img_form = ImageForm(request.POST, request.FILES)
         images = request.FILES.getlist('image')
-        if form.is_valid():
+        if form.is_valid() and img_form.is_valid():
             post = form.save(commit=False)
             post.user = request.user
             post.save()
-            form.save_m2m()
+            imgs = []
             for img in images:
                 image = Image(image=img, post=post)
                 image.save()
+                imgs.append(image)
+            post.images.set(imgs)
+            form.save_m2m()
             return redirect("/post/{}".format(post.post_id))
 
     context = {'form': form,
@@ -142,7 +144,7 @@ def show_one_post(request, post_id):
         post = Post.objects.get(post_id=post_id)
     except:
         return redirect('home')
-    images = Image.objects.filter(post=post_id)
+    images = post.images.all()
     context = {'post': post,
                'images': images}
     return render(request, 'show_one_post.html', context)

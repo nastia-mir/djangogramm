@@ -1,7 +1,16 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.db import models
-from django.utils import timezone
 from taggit.managers import TaggableManager
+
+
+class Image(models.Model):
+    image_id = models.AutoField(primary_key=True)
+    image = models.ImageField(upload_to='images/', max_length=100)
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return "Image '{}'".format(self.image_id)
 
 
 class DjGUserManager(BaseUserManager):
@@ -31,6 +40,7 @@ class DjGUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100, blank=True)
     bio = models.TextField(null=True, blank=True)
+    avatar = models.ForeignKey(Image, on_delete=models.CASCADE, null=True)
 
     is_staff = models.BooleanField(default=False)
 
@@ -45,6 +55,7 @@ class DjGUser(AbstractBaseUser, PermissionsMixin):
 class Post(models.Model):
     post_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(DjGUser, on_delete=models.CASCADE)
+    images = models.ManyToManyField(Image)
     tags = TaggableManager()
     time_created = models.DateTimeField(auto_now_add=True)
 
@@ -52,18 +63,6 @@ class Post(models.Model):
 
     def __str__(self):
         return "Post id:'{}', user:'{}'".format(self.post_id, self.user)
-
-
-class Image(models.Model):
-    image_id = models.AutoField(primary_key=True)
-    image = models.ImageField(upload_to='images/', max_length=100)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, blank=True, null=True)
-    user = models.ForeignKey(DjGUser, on_delete=models.CASCADE, blank=True, null=True)
-
-    objects = models.Manager()
-
-    def __str__(self):
-        return "Image '{}'".format(self.image_id)
 
 
 class Like(models.Model):

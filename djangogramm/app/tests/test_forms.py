@@ -47,7 +47,7 @@ class TestForms(TestCase):
     def test_djguser_settings_no_data(self):
         form = DjGUserSettingsForm(data={}, files={})
         self.assertFalse(form.is_valid())
-        self.assertEqual(len(form.errors), 4)
+        self.assertEqual(len(form.errors), 2)
 
     def test_image_valid_data(self):
         form = ImageForm(

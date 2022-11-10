@@ -2,15 +2,12 @@
 
 {% block content %}
     {% for post in posts %}
-        {% for img in images %}
-            {% if post.post_id == img.post.post_id %}
-            <div>
-                <a href="/post/{{post.post_id}}">
-                    <img src="{{MEDIA_URL}}/images/{{img.image}}" alt="img" height="150"/>
-                </a>
-            </div>
-            {% endif %}
-        {% endfor %}
+        <div>
+            <a href="/post/{{post.post_id}}">
+                <img src="{{MEDIA_URL}}/images/{{post.images.all.first.image}}" alt="img" height="150"/>
+            </a>
+        </div>
+
 
         <p>username: <a href="/profile/?uid={{post.user.user_id}}"> {{post.user}}</a></p>
         <p>tags:
