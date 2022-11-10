@@ -43,7 +43,8 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'home.html')
 
-    def test_profile_GET(self):
+    def test_profile_GET_logged_in(self):
+        self.client.post(self.register_url, self.user)
         response = self.client.get(self.profile_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'show_profile.html')
@@ -53,9 +54,9 @@ class TestViews(TestCase):
         response = self.client.get(self.profile_url)
         assert b'username: username' in response.content
 
-    def test_profile_GET_content_not_logged_in(self):
+    def test_profile_GET_not_logged_in(self):
         response = self.client.get(self.profile_url)
-        assert b'You need to log in to access this page.' in response.content
+        self.assertEqual(response.status_code, 302)
 
     def test_profile_settings_GET_logged_in(self):
         self.client.post(self.register_url, self.user)
@@ -85,7 +86,7 @@ class TestViews(TestCase):
     def test_new_post_POST(self):
         self.client.post(self.register_url, self.user)
         response = self.client.post(self.new_post_url, self.new_post)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
 
     def test_delete_user_GET_logged_in(self):
         self.client.post(self.register_url, self.user)
@@ -117,8 +118,7 @@ class TestViews(TestCase):
         self.client.post(self.register_url, self.user)
         self.client.post(self.new_post_url, self.new_post)
         response = self.client.get(self.delete_post_url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'delete_post.html')
+        self.assertEqual(response.status_code, 302)
 
     def test_delete_post_GET_logged_in_deletes_someones_post(self):
         self.client.post(self.register_url, self.user)
@@ -133,9 +133,3 @@ class TestViews(TestCase):
         self.client.post(self.new_post_url, self.new_post)
         response = self.client.post(self.delete_post_url)
         self.assertEqual(response.status_code, 302)
-
-
-
-
-
-

@@ -4,6 +4,8 @@
 
  {% block content %}
 
+    {% if request.user.is_authenticated %}
+
     <div>
         <img src="{{MEDIA_URL}}/images/{{user.avatar.image}}" alt="img" height="150"/>
         <p>username: {{user.username}}</p>
@@ -16,7 +18,7 @@
          {% endif %}
     </div>
 
-    {% if request.user.is_authenticated and user == request.user %}
+    {% elif request.user.is_authenticated and user == request.user %}
     <div>
         <a href="{% url 'profile settings' %}">Update info</a> <br/>
         <a href="{% url 'delete user' %}">Delete profile</a>

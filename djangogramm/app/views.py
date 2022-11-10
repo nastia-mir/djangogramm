@@ -62,7 +62,7 @@ def confirm_email(request):
     # not done
     return render(request, 'confirm_email.html')
 
-
+@login_required(login_url='login')
 def show_profile(request):
     uid = request.GET.get('uid', None)
     if not uid:
