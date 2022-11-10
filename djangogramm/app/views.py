@@ -70,16 +70,16 @@ def show_profile(request):
         avatar = Image.objects.filter(user=request.user.user_id).last()
         context = {'user': request.user,
                    'avatar': avatar}
+        return render(request, 'show_profile.html', context)
     else:
         try:
             user = DjGUser.objects.get(user_id=uid)
+            avatar = Image.objects.filter(user=uid).last()
+            context = {'user': user,
+                       'avatar': avatar}
+            return render(request, 'show_profile.html', context)
         except:
-            redirect('home')
-        avatar = Image.objects.filter(user=uid).last()
-        context = {'user': user,
-                   'avatar': avatar}
-
-    return render(request, 'show_profile.html', context)
+            return redirect('home')
 
 
 @login_required(login_url='login')
