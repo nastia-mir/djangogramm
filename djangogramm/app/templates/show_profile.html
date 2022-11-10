@@ -4,7 +4,7 @@
 
  {% block content %}
 
-    {% if request.user.is_authenticated %}
+    {% if request.user.is_authenticated and user == request.user %}
     <div>
         <img src="{{MEDIA_URL}}/images/{{avatar.image}}" alt="img" height="150"/>
         <p>username: {{request.user.username}}</p>
@@ -18,8 +18,15 @@
         <a href="{% url 'delete user' %}">Delete profile</a>
     </div>
 
+
     {% else %}
-        <p>You need to log in to access this page.</p>
+    <div>
+        <img src="{{MEDIA_URL}}/images/{{avatar.image}}" alt="img" height="150"/>
+        <p>username: {{user.username}}</p>
+        <p>first name: {{user.first_name}}</p>
+        <p>last name: {{user.last_name}}</p>
+        <p>bio: {{user.bio}}</p>
+    </div>
     {% endif %}
 
 {% endblock %}

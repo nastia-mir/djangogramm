@@ -7,10 +7,9 @@ from .models import DjGUser, Post, Image
 
 
 def home(request):
-    posts = Post.objects.all().order_by('-post_id')
-    images = [Image.objects.filter(post=post.post_id).first() for post in posts]
-    context = {'posts': posts,
-               'images': images}
+    posts = Post.objects.prefetch_related('image_set').order_by('-time_created')
+    print(posts)
+    context = {'posts': posts}
     return render(request, 'home.html', context)
 
 
@@ -66,8 +65,20 @@ def confirm_email(request):
 
 
 def show_profile(request):
-    avatar = Image.objects.filter(user=request.user.user_id).last()
-    context = {'avatar': avatar}
+    uid = request.GET.get('uid', None)
+    if not uid:
+        avatar = Image.objects.filter(user=request.user.user_id).last()
+        context = {'user': request.user,
+                   'avatar': avatar}
+    else:
+        try:
+            user = DjGUser.objects.get(user_id=uid)
+        except:
+            redirect('home')
+        avatar = Image.objects.filter(user=uid).last()
+        context = {'user': user,
+                   'avatar': avatar}
+
     return render(request, 'show_profile.html', context)
 
 

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.db import models
+from django.utils import timezone
 from taggit.managers import TaggableManager
 
 
@@ -30,7 +31,6 @@ class DjGUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100, blank=True)
     bio = models.TextField(null=True, blank=True)
-    # avatar = models.ImageField(upload_to='images/', max_length=100)
 
     is_staff = models.BooleanField(default=False)
 
@@ -46,6 +46,7 @@ class Post(models.Model):
     post_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(DjGUser, on_delete=models.CASCADE)
     tags = TaggableManager()
+    time_created = models.DateTimeField(auto_now_add=True)
 
     objects = models.Manager()
 
