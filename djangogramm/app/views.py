@@ -2,8 +2,15 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_str, force_bytes
 from .forms import DjGUserSettingsForm, ImageFormAvatar, DjGUserCreationForm, PostForm, ImageForm
 from .models import DjGUser, Post, Image
+from .tokens import account_activation_token
 
 
 def home(request):
@@ -23,8 +30,11 @@ def login_user(request):
 
         user = authenticate(request, email=email, password=password)
         if user is not None:
-            login(request, user)
-            return redirect('profile')
+            if user.is_verified:
+                login(request, user)
+                return redirect('profile')
+            else:
+                messages.error(request, 'You need to confirm your email first.')
         else:
             messages.error(request, 'Wrong email or password.')
 
@@ -34,6 +44,22 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     return redirect('home')
+
+
+def activate_email(request, user):
+    subject = 'Email confirmation'
+    message = render_to_string("email.html", {
+        'user': user,
+        'domain': get_current_site,
+        'uid': urlsafe_base64_encode(force_bytes(user.user_id)),
+        'token': account_activation_token.make_token(user),
+        'protocol': 'https' if request.is_secure() else 'http'
+    })
+    email = send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email])
+    if email:
+        messages.success(request, 'We send you a email to complete the registration.')
+    else:
+        messages.error(request, "We couldn't send you an email please check if you typed it correctly.")
 
 
 def register(request):
@@ -47,8 +73,7 @@ def register(request):
             user = form.save(commit=False)
             user.email = user.email.lower()
             user.save()
-            login(request, user)
-            return redirect('profile')
+            activate_email(request, user)
         else:
             try:
                 existing_user = DjGUser.objects.get(email=form.email)
@@ -58,20 +83,33 @@ def register(request):
     return render(request, 'register.html', context)
 
 
-def confirm_email(request):
-    # not done
-    return render(request, 'confirm_email.html')
+def confirm_email(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = DjGUser.objects.get(user_id=uid)
+    except:
+        user = None
+
+    if user and account_activation_token.check_token(user, token):
+        user.is_verified = True
+        user.save()
+        return render(request, 'confirm_email.html')
+
+    return redirect('home')
+
 
 @login_required(login_url='login')
 def show_profile(request):
     uid = request.GET.get('uid', None)
     if not uid:
-        context = {'user': request.user}
+        context = {'user': request.user,
+                   'uid': None}
         return render(request, 'show_profile.html', context)
     else:
         try:
             user = DjGUser.objects.get(user_id=uid)
-            context = {'user': user}
+            context = {'user': user,
+                       'uid': uid}
             return render(request, 'show_profile.html', context)
         except:
             return redirect('home')

@@ -17,6 +17,7 @@ class DjGUserManager(BaseUserManager):
 
     def create_superuser(self, email, username, first_name, password, **other_fields):
         other_fields.setdefault('is_staff', True)
+        other_fields.setdefault('is_verified', True)
         other_fields.setdefault('is_superuser', True)
         return self.create_user(email, username, first_name, password, **other_fields)
 
@@ -43,6 +44,7 @@ class DjGUser(AbstractBaseUser, PermissionsMixin):
     avatar = models.ForeignKey(Image, on_delete=models.CASCADE, null=True)
 
     is_staff = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name']

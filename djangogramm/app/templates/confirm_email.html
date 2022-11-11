@@ -1,5 +1,7 @@
 {% extends  "main.html" %}
 
 {% block content %}
-    <h1>You successfully confirmed your email.</h1>
+    <h1>You successfully confirmed your email.
+        Now you can <a href="{% url 'login' %}">Login</a>
+    </h1>
 {% endblock %}
