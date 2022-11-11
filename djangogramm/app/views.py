@@ -93,9 +93,9 @@ def confirm_email(request, uidb64, token):
     if user and account_activation_token.check_token(user, token):
         user.is_verified = True
         user.save()
-        return render(request, 'confirm_email.html')
 
-    return redirect('home')
+    context = {'user': user}
+    return render(request, 'confirm_email.html', context)
 
 
 @login_required(login_url='login')

@@ -1,7 +1,10 @@
 {% extends  "main.html" %}
 
 {% block content %}
-    <h1>You successfully confirmed your email.
-        Now you can <a href="{% url 'login' %}">Login</a>
-    </h1>
+    {% if user %}
+        <h1>You successfully confirmed your email.
+            Now you can <a href="{% url 'login' %}">Login</a>
+        </h1>
+    {% else %}
+         <h1>Something went wrong</h1>
 {% endblock %}

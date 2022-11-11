@@ -21,6 +21,10 @@ class TestUrls(SimpleTestCase):
         url = reverse('register')
         self.assertEqual(resolve(url).func, views.register)
 
+    def test_confirm_email(self):
+        url = reverse('confirm email', args={'uidb64': 1, 'token': 1})
+        self.assertEqual(resolve(url).func, views.confirm_email)
+
     def test_profile(self):
         url = reverse('profile')
         self.assertEqual(resolve(url).func, views.show_profile)
