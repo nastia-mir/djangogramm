@@ -1,5 +1,6 @@
 from django.test import Client, TestCase
 from django.urls import reverse
+from ..models import DjGUser
 
 
 class TestAuth(TestCase):
@@ -27,6 +28,15 @@ class TestAuth(TestCase):
             'email': 'test.email@gmail.com',
             'password': 'wrongpassword'
         }
+        DjGUser.objects.create_user(
+            'test.email@gmail.com',
+            'username',
+            'John',
+            'strongpassword',
+        )
+        self.verified_user = DjGUser.objects.get(email='test.email@gmail.com')
+        self.verified_user.is_verified = True
+        self.verified_user.save()
         return super().setUp()
 
     def test_register_GET(self):
@@ -36,7 +46,7 @@ class TestAuth(TestCase):
 
     def test_register_POST(self):
         response = self.client.post(self.register_url, self.user)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
 
     def test_register_POST_used_email(self):
         self.client.post(self.register_url, self.user)
