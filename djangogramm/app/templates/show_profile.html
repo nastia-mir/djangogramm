@@ -1,0 +1,29 @@
+{% extends  "main.html" %}
+
+{% load static %}
+
+ {% block content %}
+
+    {% if request.user.is_authenticated %}
+
+    <div>
+        <img src="{{MEDIA_URL}}/images/{{user.avatar.image}}" alt="img" height="150"/>
+        <p>username: {{user.username}}</p>
+        <p>first name: {{user.first_name}}</p>
+        {% if user.last_name|length > 0 %}
+        <p>last name: {{user.last_name}}</p>
+        {% endif %}
+        {% if user.bio|length > 0 %}
+        <p>bio: {{user.bio}}</p>
+         {% endif %}
+    </div>
+
+        {% if not uid %}
+            <div>
+                <a href="{% url 'profile settings' %}">Update info</a> <br/>
+                <a href="{% url 'delete user' %}">Delete profile</a>
+            </div>
+        {% endif %}
+    {% endif %}
+
+{% endblock %}

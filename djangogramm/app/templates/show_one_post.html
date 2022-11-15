@@ -1,0 +1,22 @@
+{% extends  "main.html" %}
+
+{% block content %}
+    <div>
+
+        {% for img in images %}
+        <img src="{{MEDIA_URL}}/images/{{img.image}}" alt="img"/>
+        {% endfor %}
+
+        <p>username: <a href="/profile/?uid={{post.user.user_id}}"> {{post.user}}</a></p>
+        <p>tags:
+
+            {% for tag in post.tags.all %}
+
+            #{{ tag }}
+        {% endfor %}</p>
+
+        {% if request.user.is_authenticated and request.user == post.user %}
+        <a href="{% url 'delete post' post_id=post.post_id %}">Delete post</a>
+        {% endif %}
+    </div>
+{% endblock %}
