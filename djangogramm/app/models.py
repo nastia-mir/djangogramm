@@ -60,20 +60,12 @@ class Post(models.Model):
     images = models.ManyToManyField(Image)
     tags = TaggableManager()
     time_created = models.DateTimeField(auto_now_add=True)
+    likes = models.ManyToManyField(DjGUser, related_name='post_likes')
 
     objects = models.Manager()
+
+    def count_likes(self):
+        return self.likes.count()
 
     def __str__(self):
         return "Post id:'{}', user:'{}'".format(self.post_id, self.user)
-
-
-class Like(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    users = models.ManyToManyField(DjGUser)
-
-    objects = models.Manager()
-
-    def __str__(self):
-        return "Like post='{}', users='{}'".format(self.post, self.users)
-
-

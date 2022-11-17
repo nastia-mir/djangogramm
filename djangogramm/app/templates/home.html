@@ -8,7 +8,7 @@
             </a>
         </div>
 
-
+        <p>{{post.count_likes}} users liked this post</p>
         <p>username: <a href="/profile/?uid={{post.user.user_id}}"> {{post.user}}</a></p>
         <p>tags:
             {% for tag in post.tags.all %}

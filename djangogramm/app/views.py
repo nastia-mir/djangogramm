@@ -2,12 +2,14 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from django.core.mail import send_mail
-from django.conf import settings
-from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_str, force_bytes
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from .forms import DjGUserSettingsForm, ImageFormAvatar, DjGUserCreationForm, PostForm, ImageForm
 from .models import DjGUser, Post, Image
 from .tokens import account_activation_token
@@ -59,7 +61,7 @@ def activate_email(request, user):
     if email:
         messages.success(request, 'We send you a email to complete the registration.')
     else:
-        messages.error(request, "We couldn't send you an email please check if you typed it correctly.")
+        messages.error(request, "We couldn't send you an email, please check if you typed it correctly.")
 
 
 def register(request):
@@ -183,8 +185,10 @@ def show_one_post(request, post_id):
     except:
         return redirect('home')
     images = post.images.all()
+    likes = post.count_likes()
     context = {'post': post,
-               'images': images}
+               'images': images,
+               'likes': likes}
     return render(request, 'show_one_post.html', context)
 
 
@@ -206,6 +210,26 @@ def delete_post(request, post_id):
     return render(request, 'delete_post.html', context)
 
 
-def show_likes(request):
-    # not done
-    return render(request, 'show_likes.html')
+def like_post(request, post_id):
+    try:
+        post = Post.objects.get(post_id=post_id)
+    except:
+        redirect('home')
+    if post.likes.filter(user_id=request.user.user_id).exists():
+        post.likes.remove(request.user)
+    else:
+        post.likes.add(request.user)
+    return HttpResponseRedirect(reverse('show one post', args=[post_id]))
+
+
+def show_likes(request, post_id):
+    try:
+        post = Post.objects.get(post_id=post_id)
+    except:
+        redirect('home')
+
+    users = post.likes.all()
+    likes = post.count_likes()
+    context = {'users': users,
+               'likes': likes}
+    return render(request, 'show_likes.html', context)

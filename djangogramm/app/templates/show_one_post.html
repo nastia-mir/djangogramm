@@ -7,16 +7,24 @@
         <img src="{{MEDIA_URL}}/images/{{img.image}}" alt="img"/>
         {% endfor %}
 
+        <p>{{likes}} users
+            <a href="{% url 'show likes' post.post_id %}"> liked</a>
+            this post</p>
+
+        <form action="{% url 'like' post.post_id %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" name="like-btn">Like</button>
+        </form>
+
         <p>username: <a href="/profile/?uid={{post.user.user_id}}"> {{post.user}}</a></p>
         <p>tags:
-
             {% for tag in post.tags.all %}
-
-            #{{ tag }}
-        {% endfor %}</p>
+                #{{ tag }}
+            {% endfor %}
+        </p>
 
         {% if request.user.is_authenticated and request.user == post.user %}
-        <a href="{% url 'delete post' post_id=post.post_id %}">Delete post</a>
+            <a href="{% url 'delete post' post_id=post.post_id %}">Delete post</a>
         {% endif %}
     </div>
 {% endblock %}
