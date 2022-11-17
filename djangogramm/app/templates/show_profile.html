@@ -18,11 +18,22 @@
          {% endif %}
     </div>
 
+    <div>
+        <p>{{followers}} Followers</p>
+        <p>{{followings}} Follows</p>
+    </div>
+
         {% if not uid %}
             <div>
                 <a href="{% url 'profile settings' %}">Update info</a> <br/>
                 <a href="{% url 'delete user' %}">Delete profile</a>
             </div>
+
+        {% else %}
+         <form action="{% url 'follow' uid %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" name="follow-btn">Follow</button>
+        </form>
         {% endif %}
     {% endif %}
 

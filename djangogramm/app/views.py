@@ -104,14 +104,24 @@ def confirm_email(request, uidb64, token):
 def show_profile(request):
     uid = request.GET.get('uid', None)
     if not uid:
+        followers = request.user.user_followers.all().count()
+        followings = request.user.user_following.all().count()
         context = {'user': request.user,
-                   'uid': None}
+                   'uid': None,
+                   'followers': followers,
+                   'followings': followings}
         return render(request, 'show_profile.html', context)
     else:
         try:
             user = DjGUser.objects.get(user_id=uid)
+            followers = user.user_followers.all().count()
+            followings = user.user_following.all().count()
+
             context = {'user': user,
-                       'uid': uid}
+                       'uid': uid,
+                       'followers': followers,
+                       'followings': followings
+                       }
             return render(request, 'show_profile.html', context)
         except:
             return redirect('home')
@@ -210,6 +220,7 @@ def delete_post(request, post_id):
     return render(request, 'delete_post.html', context)
 
 
+@login_required(login_url='login')
 def like_post(request, post_id):
     try:
         post = Post.objects.get(post_id=post_id)
@@ -222,6 +233,7 @@ def like_post(request, post_id):
     return HttpResponseRedirect(reverse('show one post', args=[post_id]))
 
 
+@login_required(login_url='login')
 def show_likes(request, post_id):
     try:
         post = Post.objects.get(post_id=post_id)
@@ -233,3 +245,31 @@ def show_likes(request, post_id):
     context = {'users': users,
                'likes': likes}
     return render(request, 'show_likes.html', context)
+
+
+@login_required(login_url='login')
+def follow_user(request, user_id):
+    try:
+        user = DjGUser.objects.get(user_id=user_id)
+    except:
+        redirect('home')
+
+    print(request.user.followings)
+    if request.user.followings.get(user):
+        request.user.followings.remove(user)
+        user.followers.remove(request.user)
+    else:
+        request.user.followings.add(user)
+        user.followers.add(request.user)
+
+    return HttpResponseRedirect("profile/?uid='{}'".format(user_id))
+
+
+@login_required(login_url='login')
+def show_followers(request, user_id):
+    return render(request, 'followers.html')
+
+
+@login_required(login_url='login')
+def show_followings(request, user_id):
+    return render(request, 'followings.html')
