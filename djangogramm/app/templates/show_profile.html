@@ -19,8 +19,13 @@
     </div>
 
     <div>
-        <p>{{followers}} Followers</p>
-        <p>{{followings}} Follows</p>
+        <p>{{followers}}
+            <a href="{% url 'followers' user.user_id %}">Followers</a>
+        </p>
+
+        <p>{{followings}}
+            <a href="{% url 'following' user.user_id %}">Follows</a>
+        </p>
     </div>
 
         {% if not uid %}
@@ -30,10 +35,17 @@
             </div>
 
         {% else %}
-         <form action="{% url 'follow' uid %}" method="POST">
-            {% csrf_token %}
-            <button type="submit" name="follow-btn">Follow</button>
-        </form>
+             {% if not active_user_follows %}
+                 <form action="{% url 'follow' uid %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" name="follow-btn">Follow</button>
+                </form>
+            {% else %}
+                <form action="{% url 'follow' uid %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" name="follow-btn">Unfollow</button>
+                </form>
+            {% endif %}
         {% endif %}
     {% endif %}
 

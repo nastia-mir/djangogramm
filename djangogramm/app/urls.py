@@ -22,5 +22,5 @@ urlpatterns = [
 
     path('follow/<user_id>', views.follow_user, name='follow'),
     path('followers/<user_id>', views.show_followers, name='followers'),
-    path('followings/<user_id>', views.show_followings, name='followings')
+    path('followings/<user_id>', views.show_followings, name='following')
     ]

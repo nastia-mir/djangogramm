@@ -104,24 +104,29 @@ def confirm_email(request, uidb64, token):
 def show_profile(request):
     uid = request.GET.get('uid', None)
     if not uid:
-        followers = request.user.user_followers.all().count()
-        followings = request.user.user_following.all().count()
+        followers = request.user.followers.all().count()
+        following = request.user.following.all().count()
         context = {'user': request.user,
                    'uid': None,
                    'followers': followers,
-                   'followings': followings}
+                   'followings': following}
         return render(request, 'show_profile.html', context)
     else:
         try:
             user = DjGUser.objects.get(user_id=uid)
-            followers = user.user_followers.all().count()
-            followings = user.user_following.all().count()
+            followers = user.followers.all().count()
+            following = user.following.all().count()
+
+            if user in request.user.following.all():
+                active_user_follows = True
+            else:
+                active_user_follows = False
 
             context = {'user': user,
                        'uid': uid,
                        'followers': followers,
-                       'followings': followings
-                       }
+                       'followings': following,
+                       'active_user_follows': active_user_follows}
             return render(request, 'show_profile.html', context)
         except:
             return redirect('home')
@@ -254,22 +259,44 @@ def follow_user(request, user_id):
     except:
         redirect('home')
 
-    print(request.user.followings)
-    if request.user.followings.get(user):
-        request.user.followings.remove(user)
+    if user == request.user:
+        messages.error(request, 'You can not follow yourself.')
+
+    if user in request.user.following.all():
+        request.user.following.remove(user)
         user.followers.remove(request.user)
     else:
-        request.user.followings.add(user)
+        request.user.following.add(user)
         user.followers.add(request.user)
 
-    return HttpResponseRedirect("profile/?uid='{}'".format(user_id))
+    return HttpResponseRedirect("/profile/?uid={}".format(user_id))
 
 
 @login_required(login_url='login')
 def show_followers(request, user_id):
-    return render(request, 'followers.html')
+    try:
+        user = DjGUser.objects.get(user_id=user_id)
+    except:
+        redirect('home')
+
+    followers = user.followers.all()
+    followers_count = followers.count()
+    context = {'followers': followers,
+               'followers_count': followers_count,
+               'user': user}
+    return render(request, 'followers.html', context)
 
 
 @login_required(login_url='login')
 def show_followings(request, user_id):
-    return render(request, 'followings.html')
+    try:
+        user = DjGUser.objects.get(user_id=user_id)
+    except:
+        redirect('home')
+
+    following = user.following.all()
+    following_count = following.count()
+    context = {'following': following,
+               'followers_count': following_count,
+               'user': user}
+    return render(request, 'followings.html', context)
