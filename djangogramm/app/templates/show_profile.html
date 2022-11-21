@@ -38,12 +38,12 @@
              {% if not active_user_follows %}
                  <form action="{% url 'follow' uid %}" method="POST">
                     {% csrf_token %}
-                    <button type="submit" name="follow-btn">Follow</button>
+                    <button type="submit" class="btn btn-primary" name="follow-btn">Follow</button>
                 </form>
             {% else %}
                 <form action="{% url 'follow' uid %}" method="POST">
                     {% csrf_token %}
-                    <button type="submit" name="follow-btn">Unfollow</button>
+                    <button type="submit" class="btn btn-primary" name="follow-btn">Unfollow</button>
                 </form>
             {% endif %}
         {% endif %}
