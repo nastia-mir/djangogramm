@@ -3,12 +3,15 @@
 {% block content %}
 
 {% if request.user.is_authenticated %}
+<div class="mb-3">
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         {{user_form.as_p}}
         {{avatar_form.as_p}}
         <input type="submit" value="Save" />
     </form>
+</div>
+
 {% else %}
     <p>You need to log in to access this page.</p>
 {% endif %}

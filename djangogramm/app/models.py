@@ -10,7 +10,7 @@ class Image(models.Model):
     objects = models.Manager()
 
     def __str__(self):
-        return "Image '{}'".format(self.image_id)
+        return "Image {}".format(self.image_id)
 
 
 class DjGUserManager(BaseUserManager):
@@ -71,30 +71,4 @@ class Post(models.Model):
         return self.likes.count()
 
     def __str__(self):
-        return "Post id:'{}', user:'{}'".format(self.post_id, self.user)
-
-
-'''class Follower(DjGUser):
-    followers = models.ManyToManyField('self', symmetrical=False,
-                                       blank=True)
-
-    def count_followers(self):
-        return self.followers.count()
-
-    def count_following(self):
-        return Follower.objects.filter(followers=self).count()
-'''
-
-'''class Follower(models.Model):
-    id = models.AutoField(primary_key=True)
-    user_follows = models.ManyToManyField(DjGUser, related_name='user_follows')
-    user_followed = models.ManyToManyField(DjGUser, related_name='user_followed')
-    date_followed = models.DateField(auto_now_add=True)
-
-    objects = models.Manager()
-
-    class Meta:
-        ordering = ('-date_followed',)
-
-    def __str__(self):
-        return "'{}' followed '{}'".format(self.user_follows, self.user_followed)'''
+        return "Post id:{}, user:{}".format(self.post_id, self.user)
