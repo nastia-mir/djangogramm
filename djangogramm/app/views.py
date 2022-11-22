@@ -10,14 +10,25 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.db.models import Q
 from .forms import DjGUserSettingsForm, ImageFormAvatar, DjGUserCreationForm, PostForm, ImageForm
 from .models import DjGUser, Post, Image
 from .tokens import account_activation_token
 
 
 def home(request):
-    posts = Post.objects.prefetch_related('images').order_by('-time_created')
-    context = {'posts': posts}
+    if request.user.is_authenticated:
+        followings = request.user.following.all()
+        posts = Post.objects.filter(Q(user=request.user) | Q(user__in=followings)).\
+            prefetch_related('images').order_by('-time_created')
+        not_followed = DjGUser.objects.exclude(Q(username=request.user.username) |
+                                               Q(username__in=(user.username for user in followings)))
+        context = {'posts': posts,
+                   'not_followed': not_followed}
+    else:
+        posts = Post.objects.prefetch_related('images').order_by('-time_created')
+        context = {'posts': posts}
+
     return render(request, 'home.html', context)
 
 

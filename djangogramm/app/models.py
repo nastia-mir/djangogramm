@@ -41,7 +41,7 @@ class DjGUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100, blank=True)
     bio = models.TextField(null=True, blank=True)
-    avatar = models.ForeignKey(Image, on_delete=models.CASCADE, null=True)
+    avatar = models.ForeignKey(Image, on_delete=models.CASCADE, null=True, blank=True)
 
     followers = models.ManyToManyField('self', blank=True, related_name='user_followers', symmetrical=False)
     following = models.ManyToManyField('self', blank=True, related_name='user_following', symmetrical=False)
