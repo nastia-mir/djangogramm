@@ -40,7 +40,7 @@
 
               {% if uid and uid %}
 
-              <div class=" justify-content-center">
+              <div class="justify-content-center">
                   {% if not active_user_follows %}
                      <form action="{% url 'follow' uid %}" method="POST">
                         {% csrf_token %}

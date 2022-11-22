@@ -212,9 +212,16 @@ def show_one_post(request, post_id):
         return redirect('home')
     images = post.images.all()
     likes = post.count_likes()
+
+    if request.user in post.likes.all():
+        post_liked = True
+    else:
+        post_liked = False
+
     context = {'post': post,
                'images': images,
-               'likes': likes}
+               'likes': likes,
+               'post_liked': post_liked}
     return render(request, 'show_one_post.html', context)
 
 

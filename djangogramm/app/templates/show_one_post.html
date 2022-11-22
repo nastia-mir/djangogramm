@@ -24,13 +24,23 @@
             {% endfor %}
         </p>
 
+        {% if not post_liked %}
+
         <form action="{% url 'like' post.post_id %}" method="POST">
             {% csrf_token %}
             <button type="submit" class="btn btn-primary" name="like-btn">Like</button>
         </form>
+        {% else %}
+        <form action="{% url 'like' post.post_id %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary" name="like-btn">Unlike</button>
+        </form>
+        {% endif %}
+
+        <br/>
 
         {% if request.user.is_authenticated and request.user == post.user %}
-                <a href="{% url 'delete post' post_id=post.post_id %}">Delete post</a>
+                <a href="{% url 'delete post' post_id=post.post_id %}" class="btn btn-danger">Delete post</a>
         {% endif %}
 
         <br/>
