@@ -7,7 +7,7 @@
               {% for post in posts %}
             <div class="card justify-content-center" style="width: 20rem;">
               <a href="/post/{{post.post_id}}">
-                        <img src="{{MEDIA_URL}}/images/{{post.images.all.first.image}}" alt="img" class="img-thumbnail" />
+                        <img src="{{MEDIA_URL}}/images/{{post.images.all.first.image}}" alt="img" class="img-thumbnail"/>
                     </a>
               <div class="card-body">
                 <h5 class="card-title">username: <a href="/profile/?uid={{post.user.user_id}}"> {{post.user}}</a></h5>

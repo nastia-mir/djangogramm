@@ -1,15 +1,21 @@
 {% extends  "main.html" %}
 
 {% block content %}
-    <div>
+    <div class="container" >
+        <div class="row">
 
-        {% for img in images %}
-        <img src="{{MEDIA_URL}}/images/{{img.image}}" alt="img"/>
-        {% endfor %}
+            {% for img in images %}
+            <div class="col-md-auto">
+                <img src="{{MEDIA_URL}}/images/{{img.image}}" alt="img" class=" rounded" style="width: 20rem;"/>
+            </div>
+            {% endfor %}
+
+        </div>
+        <br/>
 
         <p>{{likes}} users
-            <a href="{% url 'show likes' post.post_id %}"> liked</a>
-            this post</p>
+            <a href="{% url 'show likes' post.post_id %}"> liked</a> this post
+        </p>
 
         <p>username: <a href="/profile/?uid={{post.user.user_id}}"> {{post.user}}</a></p>
         <p>tags:
@@ -24,10 +30,9 @@
         </form>
 
         {% if request.user.is_authenticated and request.user == post.user %}
-            <a href="{% url 'delete post' post_id=post.post_id %}">Delete post</a>
+                <a href="{% url 'delete post' post_id=post.post_id %}">Delete post</a>
         {% endif %}
 
         <br/>
-
     </div>
 {% endblock %}
