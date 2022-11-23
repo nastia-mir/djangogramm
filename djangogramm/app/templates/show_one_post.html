@@ -6,7 +6,7 @@
 
             {% for img in images %}
             <div class="col-md-auto">
-                <img src="{{MEDIA_URL}}/images/{{img.image}}" alt="img" class=" rounded" style="width: 20rem;"/>
+                <img src="{{img.image.url}}" alt="img" class="rounded" style="width: 20rem;"/>
             </div>
             {% endfor %}
 

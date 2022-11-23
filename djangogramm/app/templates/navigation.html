@@ -1,17 +1,17 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
-        <div class="row ">
+        <div class="row">
             <ul class="navbar-nav nav-fill d-flex align-items-center ">
                 <div class="col">
-                     <li class="nav-item ">
-                        <a class="nav-link " href="/"><h2>DjangoGramm</h2></a>
+                     <li class="nav-item">
+                        <a class="nav-link" href="/"><h2>DjangoGramm</h2></a>
                      </li>
                 </div>
 
                  {% if request.user.is_authenticated %}
 
                  <div class="col-6">
-                     <li class="nav-item ">
+                     <li class="nav-item">
                          Hello, <a class="nav-link" href="{% url 'profile'%}">{{request.user.first_name}}</a>
                      </li>
                  </div>

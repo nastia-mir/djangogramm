@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+import cloudinary_storage
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
+    'cloudinary',
     'app',
     'taggit',
 ]
@@ -124,8 +127,17 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'images')
 MEDIA_URL = '/images/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'images')
+
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'djeiyqkkg',
+    'API_KEY': '568212298632687',
+    'API_SECRET': 't_ZS9b7LIStrXnc2jcqAE4k35eI'
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # email configs
 
@@ -142,5 +154,8 @@ PASSWORD_RESET_TIMEOUT = 14400
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
 
 
