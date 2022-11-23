@@ -1,6 +1,8 @@
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
+from io import BytesIO
+from PIL import Image
 from ..models import DjGUser
 
 
@@ -16,6 +18,11 @@ class TestViews(TestCase):
         self.delete_user_url = reverse('delete user')
         self.one_post_url = reverse('show one post', args=['1'])
         self.delete_post_url = reverse('delete post', args=['1'])
+        self.like_post_url = reverse('like', args=['1'])
+        self.show_likes_url = reverse('show likes', args=['1'])
+        self.follow_url = reverse('follow', args=['1'])
+        self.show_followers_url = reverse('followers', args=['1'])
+        self.show_following_url = reverse('following', args=['1'])
 
         DjGUser.objects.create_user(
             'test.email1@gmail.com',
@@ -45,18 +52,24 @@ class TestViews(TestCase):
             'password': 'strongpassword'
         }
 
-        self.image = SimpleUploadedFile(name='test_image.jpg',
-                                        content=b'some_content',
-                                        content_type='image/jpeg')
+        f = BytesIO()
+        image = Image.new(mode='RGB', size=(100, 100))
+        image.save(f, 'JPEG')
+        f.seek(0)
+        self.test_image = SimpleUploadedFile(
+            "test_image.jpg",
+            content=f.read(),
+        )
+
         self.profile_settings = {
             'username': 'username',
             'first_name': 'John',
             'last_name': 'Doe',
             'bio': 'bio',
-            'avatar': self.image
+            'avatar': self.test_image
         }
         self.new_post = {
-            'image': self.image,
+            'image': self.test_image,
             'tags': 'some tags'
         }
 
@@ -110,7 +123,7 @@ class TestViews(TestCase):
     def test_new_post_POST(self):
         self.client.post(self.login_url, self.verified_login_data)
         response = self.client.post(self.new_post_url, self.new_post)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
 
     def test_delete_user_GET_logged_in(self):
         self.client.post(self.login_url, self.verified_login_data)
@@ -142,7 +155,7 @@ class TestViews(TestCase):
         self.client.post(self.login_url, self.verified_login_data)
         self.client.post(self.new_post_url, self.new_post)
         response = self.client.get(self.delete_post_url)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
 
     def test_delete_post_GET_logged_in_deletes_someones_post(self):
         self.client.post(self.login_url, self.verified_login_data)
@@ -157,3 +170,31 @@ class TestViews(TestCase):
         self.client.post(self.new_post_url, self.new_post)
         response = self.client.post(self.delete_post_url)
         self.assertEqual(response.status_code, 302)
+
+    def test_like_post_GET(self):
+        self.client.post(self.login_url, self.verified_login_data)
+        self.client.post(self.new_post_url, self.new_post)
+        response = self.client.get(self.like_post_url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_show_likes_GET(self):
+        self.client.post(self.login_url, self.verified_login_data)
+        self.client.post(self.new_post_url, self.new_post)
+        response = self.client.get(self.show_likes_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_follow_GET(self):
+        self.client.post(self.login_url, self.verified_login_data2)
+        response = self.client.get(self.follow_url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_show_followers_GET(self):
+        self.client.post(self.login_url, self.verified_login_data)
+        response = self.client.get(self.show_followers_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_show_following_GET(self):
+        self.client.post(self.login_url, self.verified_login_data)
+        response = self.client.get(self.show_following_url)
+        self.assertEqual(response.status_code, 200)
+
