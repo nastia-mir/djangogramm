@@ -14,21 +14,23 @@ from django.db.models import Q
 from .forms import DjGUserSettingsForm, ImageFormAvatar, DjGUserCreationForm, PostForm, ImageForm
 from .models import DjGUser, Post, Image
 from .tokens import account_activation_token
+from random import sample
 
 
+@login_required(login_url='login')
 def home(request):
-    if request.user.is_authenticated:
-        followings = request.user.following.all()
-        posts = Post.objects.filter(Q(user=request.user) | Q(user__in=followings)).\
-            prefetch_related('images').order_by('-time_created')
-        not_followed = DjGUser.objects.exclude(Q(username=request.user.username) |
-                                               Q(username__in=(user.username for user in followings)))
+    followings = request.user.following.all()
+    posts = Post.objects.filter(Q(user=request.user) | Q(user__in=followings)).\
+        prefetch_related('images').order_by('-time_created')
+    not_followed = list(DjGUser.objects.exclude(Q(username=request.user.username) |
+                                            Q(username__in=(user.username for user in followings))))
+    if len(not_followed) < 5:
         context = {'posts': posts,
-                   'not_followed': not_followed}
+               'not_followed': not_followed}
     else:
-        posts = Post.objects.prefetch_related('images').order_by('-time_created')
-        context = {'posts': posts}
-
+        random_not_followed = sample(not_followed, 5)
+        context = {'posts': posts,
+                    'not_followed': random_not_followed}
     return render(request, 'home.html', context)
 
 
@@ -249,10 +251,20 @@ def like_post(request, post_id):
         post = Post.objects.get(post_id=post_id)
     except:
         redirect('home')
+
+    if not post.likes.filter(user_id=request.user.user_id).exists():
+        post.likes.add(request.user)
+    return HttpResponseRedirect(reverse('show one post', args=[post_id]))
+
+
+@login_required(login_url='login')
+def unlike_post(request, post_id):
+    try:
+        post = Post.objects.get(post_id=post_id)
+    except:
+        redirect('home')
     if post.likes.filter(user_id=request.user.user_id).exists():
         post.likes.remove(request.user)
-    else:
-        post.likes.add(request.user)
     return HttpResponseRedirect(reverse('show one post', args=[post_id]))
 
 
