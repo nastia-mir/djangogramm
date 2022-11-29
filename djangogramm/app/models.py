@@ -43,9 +43,6 @@ class DjGUser(AbstractBaseUser, PermissionsMixin):
     bio = models.TextField(null=True, blank=True)
     avatar = models.ForeignKey(Image, on_delete=models.CASCADE, null=True, blank=True)
 
-    # followers = models.ManyToManyField('self', blank=True, related_name='user_followers', symmetrical=False)
-    # following = models.ManyToManyField('self', blank=True, related_name='user_following', symmetrical=False)
-
     is_staff = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
 

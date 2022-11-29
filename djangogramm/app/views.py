@@ -321,7 +321,6 @@ def show_followers(request, user_id):
     try:
         user = DjGUser.objects.get(user_id=user_id)
         followers = Follower.objects.filter(follow_to=user).values('follow_from__username')
-        print(followers)
         followers_count = len(followers)
         context = {'followers': followers,
                    'followers_count': followers_count,
@@ -331,18 +330,17 @@ def show_followers(request, user_id):
         redirect('home')
 
 
-
-
 @login_required(login_url='login')
 def show_followings(request, user_id):
     try:
         user = DjGUser.objects.get(user_id=user_id)
+        following = Follower.objects.filter(follow_from=user).values('follow_to__username')
+        following_count = len(following)
+        context = {'following': following,
+                   'followers_count': following_count,
+                   'user': user}
+        return render(request, 'followings.html', context)
     except:
         redirect('home')
 
-    following = user.following.all()
-    following_count = following.count()
-    context = {'following': following,
-               'followers_count': following_count,
-               'user': user}
-    return render(request, 'followings.html', context)
+

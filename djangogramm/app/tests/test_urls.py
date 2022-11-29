@@ -57,9 +57,17 @@ class TestUrls(SimpleTestCase):
         url = reverse('like', args=['1'])
         self.assertEqual(resolve(url).func, views.like_post)
 
+    def test_unlike(self):
+        url = reverse('unlike', args=['1'])
+        self.assertEqual(resolve(url).func, views.unlike_post)
+
     def test_follow(self):
         url = reverse('follow', args=['1'])
         self.assertEqual(resolve(url).func, views.follow_user)
+
+    def test_unfollow(self):
+        url = reverse('unfollow', args=['1'])
+        self.assertEqual(resolve(url).func, views.unfollow_user)
 
     def test_followers(self):
         url = reverse('followers', args=['1'])
