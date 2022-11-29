@@ -11,19 +11,20 @@ from django.template.loader import render_to_string
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.db.models import Q
-from .forms import DjGUserSettingsForm, ImageFormAvatar, DjGUserCreationForm, PostForm, ImageForm
-from .models import DjGUser, Post, Image
-from .tokens import account_activation_token
 from random import sample
+from .forms import DjGUserSettingsForm, ImageFormAvatar, DjGUserCreationForm, PostForm, ImageForm
+from .models import DjGUser, Post, Image, Follower
+from .tokens import account_activation_token
 
 
 @login_required(login_url='login')
 def home(request):
-    followings = request.user.following.all()
-    posts = Post.objects.filter(Q(user=request.user) | Q(user__in=followings)).\
+    followings = Follower.objects.filter(follow_from=request.user)
+
+    posts = Post.objects.filter(Q(user=request.user) | Q(user__in=followings.values('follow_to'))).\
         prefetch_related('images').order_by('-time_created')
     not_followed = list(DjGUser.objects.exclude(Q(username=request.user.username) |
-                                            Q(username__in=(user.username for user in followings))))
+                                                Q(username__in=followings.values('follow_to__username'))))
     if len(not_followed) < 5:
         context = {'posts': posts,
                'not_followed': not_followed}
@@ -117,8 +118,8 @@ def confirm_email(request, uidb64, token):
 def show_profile(request):
     uid = request.GET.get('uid', None)
     if not uid:
-        followers = request.user.followers.all().count()
-        following = request.user.following.all().count()
+        followers = Follower.objects.filter(follow_to=request.user).count()
+        following = Follower.objects.filter(follow_from=request.user).count()
         context = {'user': request.user,
                    'uid': None,
                    'followers': followers,
@@ -127,10 +128,10 @@ def show_profile(request):
     else:
         try:
             user = DjGUser.objects.get(user_id=uid)
-            followers = user.followers.all().count()
-            following = user.following.all().count()
+            followers = Follower.objects.filter(follow_to=user).count()
+            following = Follower.objects.filter(follow_from=user).count()
 
-            if user in request.user.following.all():
+            if Follower.objects.filter(follow_from=request.user, follow_to=user):
                 active_user_follows = True
             else:
                 active_user_follows = False
@@ -207,6 +208,7 @@ def delete_user(request):
     return render(request, 'delete_user.html', context)
 
 
+@login_required(login_url='login')
 def show_one_post(request, post_id):
     try:
         post = Post.objects.get(post_id=post_id)
@@ -292,29 +294,43 @@ def follow_user(request, user_id):
     if user == request.user:
         messages.error(request, 'You can not follow yourself.')
 
-    if user in request.user.following.all():
-        request.user.following.remove(user)
-        user.followers.remove(request.user)
-    else:
-        request.user.following.add(user)
-        user.followers.add(request.user)
+    if not Follower.objects.filter(follow_from=request.user, follow_to=user):
+        following = Follower.objects.create(follow_from=request.user, follow_to=user)
+        following.save()
 
     return HttpResponseRedirect("/profile/?uid={}".format(user_id))
+
+
+@login_required(login_url='login')
+def unfollow_user(request, user_id):
+    try:
+        user = DjGUser.objects.get(user_id=user_id)
+        if user == request.user:
+            messages.error(request, 'You can not unfollow yourself.')
+
+        if Follower.objects.filter(follow_from=request.user, follow_to=user):
+            Follower.objects.filter(follow_from=request.user, follow_to=user).delete()
+
+        return HttpResponseRedirect("/profile/?uid={}".format(user_id))
+    except:
+        redirect('home')
 
 
 @login_required(login_url='login')
 def show_followers(request, user_id):
     try:
         user = DjGUser.objects.get(user_id=user_id)
+        followers = Follower.objects.filter(follow_to=user).values('follow_from__username')
+        print(followers)
+        followers_count = len(followers)
+        context = {'followers': followers,
+                   'followers_count': followers_count,
+                   'user': user}
+        return render(request, 'followers.html', context)
     except:
         redirect('home')
 
-    followers = user.followers.all()
-    followers_count = followers.count()
-    context = {'followers': followers,
-               'followers_count': followers_count,
-               'user': user}
-    return render(request, 'followers.html', context)
+
 
 
 @login_required(login_url='login')

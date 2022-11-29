@@ -43,8 +43,8 @@ class DjGUser(AbstractBaseUser, PermissionsMixin):
     bio = models.TextField(null=True, blank=True)
     avatar = models.ForeignKey(Image, on_delete=models.CASCADE, null=True, blank=True)
 
-    followers = models.ManyToManyField('self', blank=True, related_name='user_followers', symmetrical=False)
-    following = models.ManyToManyField('self', blank=True, related_name='user_following', symmetrical=False)
+    # followers = models.ManyToManyField('self', blank=True, related_name='user_followers', symmetrical=False)
+    # following = models.ManyToManyField('self', blank=True, related_name='user_following', symmetrical=False)
 
     is_staff = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
@@ -72,3 +72,10 @@ class Post(models.Model):
 
     def __str__(self):
         return "Post id:{}, user:{}".format(self.post_id, self.user)
+
+
+class Follower(models.Model):
+    follow_from = models.ForeignKey(DjGUser, related_name='follow_to', on_delete=models.CASCADE)
+    follow_to = models.ForeignKey(DjGUser, related_name='follow_from', on_delete=models.CASCADE)
+
+    objects = models.Manager()

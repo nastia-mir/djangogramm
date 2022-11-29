@@ -47,7 +47,7 @@
                         <button type="submit" class="btn btn-primary" name="follow-btn">Follow</button>
                     </form>
                   {% else %}
-                    <form action="{% url 'follow' uid %}" method="POST">
+                    <form action="{% url 'unfollow' uid %}" method="POST">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-secondary" name="follow-btn">Unfollow</button>
                     </form>
