@@ -72,7 +72,18 @@ class Post(models.Model):
 
 
 class Follower(models.Model):
+    id = models.AutoField(primary_key=True)
     follow_from = models.ForeignKey(DjGUser, related_name='follow_to', on_delete=models.CASCADE)
     follow_to = models.ForeignKey(DjGUser, related_name='follow_from', on_delete=models.CASCADE)
 
     objects = models.Manager()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['follow_from', 'follow_to'],
+                                               condition=models.Q(follow_from=models.F('follow_to')),
+                                               name='unique_follower'),
+                       models.CheckConstraint(check=models.Q(follow_from=models.F('follow_to')),
+                                               name='unique_follower_check')]
+
+    def __str__(self):
+        return "{} follows {}".format(self.follow_from, self.follow_to)

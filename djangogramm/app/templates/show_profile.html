@@ -38,7 +38,7 @@
               </p>
                             <br/>
 
-              {% if uid and uid %}
+              {% if uid %}
 
               <div class="justify-content-center">
                   {% if not active_user_follows %}
@@ -54,37 +54,33 @@
                   {% endif %}
               </div>
 
-              {% endif %}
-
-
+            {% endif %}
 
           </div>
         </div>
       </div>
     </div>
 
-        {% if not uid%}
+        {% if not uid %}
 
+        <div class="container justify-content-left">
+          <div class="row ">
+            <div class="col-sm-2">
+                <a href="{% url 'profile settings' %}" class="btn btn-secondary">Update info</a>
+            </div>
+            <div class="col-sm-2">
+                <a href="{% url 'delete user' %}" class="btn btn-danger">Delete profile</a>
+            </div>
 
-
-    <div class="container justify-content-left">
-      <div class="row ">
-        <div class="col-sm-2">
-            <a href="{% url 'profile settings' %}" class="btn btn-secondary">Update info</a>
+          </div>
         </div>
-        <div class="col-sm-2">
-            <a href="{% url 'delete user' %}" class="btn btn-danger">Delete profile</a>
-        </div>
-
-      </div>
-    </div>
 
     <br/>
 
 
 
-            {% endif %}
-           {% endif %}
+        {% endif %}
+    {% endif %}
 
 
 {% endblock %}

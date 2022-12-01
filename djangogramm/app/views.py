@@ -9,32 +9,37 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.http import HttpResponseRedirect
+from django.views.decorators.http import require_http_methods
 from django.urls import reverse
 from django.db.models import Q
+from django.db import IntegrityError
 from random import sample
 from .forms import DjGUserSettingsForm, ImageFormAvatar, DjGUserCreationForm, PostForm, ImageForm
 from .models import DjGUser, Post, Image, Follower
 from .tokens import account_activation_token
 
 
+@require_http_methods(["GET"])
 @login_required(login_url='login')
 def home(request):
-    followings = Follower.objects.filter(follow_from=request.user)
+    if request.method == "GET":
+        followings = Follower.objects.filter(follow_from=request.user)
 
-    posts = Post.objects.filter(Q(user=request.user) | Q(user__in=followings.values('follow_to'))).\
-        prefetch_related('images').order_by('-time_created')
-    not_followed = list(DjGUser.objects.exclude(Q(username=request.user.username) |
-                                                Q(username__in=followings.values('follow_to__username'))))
-    if len(not_followed) < 5:
-        context = {'posts': posts,
-               'not_followed': not_followed}
-    else:
-        random_not_followed = sample(not_followed, 5)
-        context = {'posts': posts,
-                    'not_followed': random_not_followed}
-    return render(request, 'home.html', context)
+        posts = Post.objects.filter(Q(user=request.user) | Q(user__in=followings.values('follow_to'))).\
+            prefetch_related('images').order_by('-time_created')
+        not_followed = list(DjGUser.objects.exclude(Q(username=request.user.username) |
+                                                    Q(username__in=followings.values('follow_to__username'))))
+        if len(not_followed) < 5:
+            context = {'posts': posts,
+                       'not_followed': not_followed}
+        else:
+            random_not_followed = sample(not_followed, 5)
+            context = {'posts': posts,
+                       'not_followed': random_not_followed}
+        return render(request, 'home.html', context)
 
 
+@require_http_methods(["GET", "POST"])
 def login_user(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -51,15 +56,20 @@ def login_user(request):
                 return redirect('profile')
             else:
                 messages.error(request, 'You need to confirm your email first.')
+                return redirect('login')
         else:
             messages.error(request, 'Wrong email or password.')
+            return redirect('login')
 
-    return render(request, 'login.html')
+    elif request.method == 'GET':
+        return render(request, 'login.html')
 
 
+@require_http_methods(["GET"])
 def logout_user(request):
-    logout(request)
-    return redirect('home')
+    if request.method == "GET":
+        logout(request)
+        return redirect('home')
 
 
 def activate_email(request, user):
@@ -78,72 +88,80 @@ def activate_email(request, user):
         messages.error(request, "We couldn't send you an email, please check if you typed it correctly.")
 
 
+@require_http_methods(["GET", "POST"])
 def register(request):
-    form = DjGUserCreationForm()
-    context = {'form': form}
-
     if request.method == 'POST':
         form = DjGUserCreationForm(request.POST)
-
         if form.is_valid():
             user = form.save(commit=False)
             user.email = user.email.lower()
             user.save()
             activate_email(request, user)
+            return redirect('login')
         else:
             try:
                 existing_user = DjGUser.objects.get(email=form.email)
             except:
                 messages.error(request, 'This email is already used.')
+                return redirect('register')
 
-    return render(request, 'register.html', context)
+    elif request.method == "GET":
+        form = DjGUserCreationForm()
+        context = {'form': form}
+
+        return render(request, 'register.html', context)
 
 
+@require_http_methods(["GET"])
 def confirm_email(request, uidb64, token):
-    try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = DjGUser.objects.get(user_id=uid)
-    except:
-        user = None
+    if request.method == "GET":
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = DjGUser.objects.get(user_id=uid)
+        except:
+            user = None
 
-    if user and account_activation_token.check_token(user, token):
-        user.is_verified = True
-        user.save()
+        if user and account_activation_token.check_token(user, token):
+            user.is_verified = True
+            user.save()
 
-    context = {'user': user}
-    return render(request, 'confirm_email.html', context)
+        context = {'user': user}
+        return render(request, 'confirm_email.html', context)
 
 
+@require_http_methods(["GET"])
 @login_required(login_url='login')
 def show_profile(request):
-    uid = request.GET.get('uid', None)
-    if not uid:
-        followers = Follower.objects.filter(follow_to=request.user).count()
-        following = Follower.objects.filter(follow_from=request.user).count()
-        context = {'user': request.user,
-                   'uid': None,
+    if request.method == "GET":
+        uid = request.GET.get('uid', None)
+        if not uid:
+            followers = Follower.objects.filter(follow_to=request.user).count()
+            following = Follower.objects.filter(follow_from=request.user).count()
+            user = request.user
+            active_user_follows = False
+        else:
+            try:
+                user = DjGUser.objects.get(user_id=uid)
+                followers = Follower.objects.filter(follow_to=user).count()
+                following = Follower.objects.filter(follow_from=user).count()
+
+                if request.user == user:
+                    uid = None
+
+                if Follower.objects.filter(follow_from=request.user, follow_to=user):
+                    active_user_follows = True
+                else:
+                    active_user_follows = False
+
+            except:
+                return redirect('home')
+
+        context = {'user': user,
+                   'uid': uid,
                    'followers': followers,
-                   'followings': following}
+                   'followings': following,
+                   'active_user_follows': active_user_follows}
         return render(request, 'show_profile.html', context)
-    else:
-        try:
-            user = DjGUser.objects.get(user_id=uid)
-            followers = Follower.objects.filter(follow_to=user).count()
-            following = Follower.objects.filter(follow_from=user).count()
-
-            if Follower.objects.filter(follow_from=request.user, follow_to=user):
-                active_user_follows = True
-            else:
-                active_user_follows = False
-
-            context = {'user': user,
-                       'uid': uid,
-                       'followers': followers,
-                       'followings': following,
-                       'active_user_follows': active_user_follows}
-            return render(request, 'show_profile.html', context)
-        except:
-            return redirect('home')
 
 
 @login_required(login_url='login')
@@ -294,9 +312,12 @@ def follow_user(request, user_id):
     if user == request.user:
         messages.error(request, 'You can not follow yourself.')
 
-    if not Follower.objects.filter(follow_from=request.user, follow_to=user):
-        following = Follower.objects.create(follow_from=request.user, follow_to=user)
-        following.save()
+    elif not Follower.objects.filter(follow_from=request.user, follow_to=user):
+        try:
+            following = Follower.objects.create(follow_from=request.user, follow_to=user)
+            following.save()
+        except IntegrityError:
+            messages.error(request, 'You can not follow yourself.')
 
     return HttpResponseRedirect("/profile/?uid={}".format(user_id))
 
@@ -305,15 +326,20 @@ def follow_user(request, user_id):
 def unfollow_user(request, user_id):
     try:
         user = DjGUser.objects.get(user_id=user_id)
-        if user == request.user:
-            messages.error(request, 'You can not unfollow yourself.')
-
-        if Follower.objects.filter(follow_from=request.user, follow_to=user):
-            Follower.objects.filter(follow_from=request.user, follow_to=user).delete()
-
-        return HttpResponseRedirect("/profile/?uid={}".format(user_id))
     except:
         redirect('home')
+
+    if user == request.user:
+        messages.error(request, 'You can not unfollow yourself.')
+
+    try:
+        following = Follower.objects.filter(follow_from=request.user, follow_to=user)
+        if following:
+            Follower.objects.filter(follow_from=request.user, follow_to=user).delete()
+    except:
+        return HttpResponseRedirect("/profile/?uid={}".format(user_id))
+
+    return HttpResponseRedirect("/profile/?uid={}".format(user_id))
 
 
 @login_required(login_url='login')
