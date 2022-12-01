@@ -164,11 +164,17 @@ def show_profile(request):
         return render(request, 'show_profile.html', context)
 
 
+@require_http_methods(["GET", "POST"])
 @login_required(login_url='login')
 def profile_settings(request):
-    user_form = DjGUserSettingsForm(instance=request.user)
-    avatar_form = ImageFormAvatar(instance=request.user.avatar)
-    if request.method == 'POST':
+    if request.method == "GET":
+        user_form = DjGUserSettingsForm(instance=request.user)
+        avatar_form = ImageFormAvatar(instance=request.user.avatar)
+        context = {'user_form': user_form,
+                   'avatar_form': avatar_form
+                   }
+        return render(request, 'profile_settings.html', context)
+    elif request.method == 'POST':
         user_form = DjGUserSettingsForm(request.POST, instance=request.user)
         avatar_form = ImageFormAvatar(request.POST, request.FILES, instance=request.user.avatar)
         if user_form.is_valid() and avatar_form.is_valid():
@@ -184,17 +190,19 @@ def profile_settings(request):
             return redirect("profile")
         else:
             messages.error(request, 'Something went wrong.')
-    context = {'user_form': user_form,
-               'avatar_form': avatar_form
-    }
-    return render(request, 'profile_settings.html', context)
+            return redirect('profile settings')
 
 
+@require_http_methods(["GET", "POST"])
 @login_required(login_url='login')
 def new_post(request):
-    img_form = ImageForm()
-    form = PostForm()
-    if request.method == 'POST':
+    if request.method == 'GET':
+        img_form = ImageForm()
+        form = PostForm()
+        context = {'form': form,
+                   'img_form': img_form}
+        return render(request, 'new_post.html', context)
+    elif request.method == 'POST':
         form = PostForm(request.POST)
         img_form = ImageForm(request.POST, request.FILES)
         images = request.FILES.getlist('image')
@@ -211,95 +219,103 @@ def new_post(request):
             form.save_m2m()
             return redirect("/post/{}".format(post.post_id))
 
-    context = {'form': form,
-               'img_form': img_form}
-    return render(request, 'new_post.html', context)
 
-
+@require_http_methods(["GET", "POST"])
 @login_required(login_url='login')
 def delete_user(request):
-    user = request.user
+    if request.method == 'GET':
+        user = request.user
+        context = {'user': user}
+        return render(request, 'delete_user.html', context)
     if request.method == 'POST':
-        user.delete()
+        request.user.delete()
         return redirect('home')
-    context = {'user': user}
-    return render(request, 'delete_user.html', context)
 
 
+@require_http_methods(["GET"])
 @login_required(login_url='login')
 def show_one_post(request, post_id):
-    try:
-        post = Post.objects.get(post_id=post_id)
-    except:
-        return redirect('home')
-    images = post.images.all()
-    likes = post.count_likes()
+    if request.method == 'GET':
+        try:
+            post = Post.objects.get(post_id=post_id)
+        except:
+            return redirect('home')
+        images = post.images.all()
+        likes = post.count_likes()
 
-    if request.user in post.likes.all():
-        post_liked = True
-    else:
-        post_liked = False
+        if request.user in post.likes.all():
+            post_liked = True
+        else:
+            post_liked = False
 
-    context = {'post': post,
-               'images': images,
-               'likes': likes,
-               'post_liked': post_liked}
-    return render(request, 'show_one_post.html', context)
+        context = {'post': post,
+                   'images': images,
+                   'likes': likes,
+                   'post_liked': post_liked}
+        return render(request, 'show_one_post.html', context)
 
 
+@require_http_methods(["GET", "POST"])
 @login_required(login_url='login')
 def delete_post(request, post_id):
-    try:
-        post = Post.objects.get(post_id=post_id)
-    except:
-        return redirect('home')
-
-    if request.user == post.user:
-        if request.method == 'POST':
-            post.delete()
+    if request.method == 'POST':
+        try:
+            post = Post.objects.get(post_id=post_id)
+            if request.user == post.user:
+                post.delete()
             return redirect('home')
-    else:
-        return redirect('home')
+        except:
+            return redirect('home')
 
-    context = {'post': post}
-    return render(request, 'delete_post.html', context)
+    elif request.method == 'GET':
+        try:
+            post = Post.objects.get(post_id=post_id)
+            context = {'post': post}
+            return render(request, 'delete_post.html', context)
+        except:
+            return redirect('home')
 
 
+@require_http_methods(["POST"])
 @login_required(login_url='login')
 def like_post(request, post_id):
-    try:
-        post = Post.objects.get(post_id=post_id)
-    except:
-        redirect('home')
+    if request.method == 'POST':
+        try:
+            post = Post.objects.get(post_id=post_id)
+            if not post.likes.filter(user_id=request.user.user_id).exists():
+                post.likes.add(request.user)
+            return HttpResponseRedirect(reverse('show one post', args=[post_id]))
+        except:
+            redirect('home')
 
-    if not post.likes.filter(user_id=request.user.user_id).exists():
-        post.likes.add(request.user)
-    return HttpResponseRedirect(reverse('show one post', args=[post_id]))
 
-
+@require_http_methods(["POST"])
 @login_required(login_url='login')
 def unlike_post(request, post_id):
-    try:
-        post = Post.objects.get(post_id=post_id)
-    except:
-        redirect('home')
-    if post.likes.filter(user_id=request.user.user_id).exists():
-        post.likes.remove(request.user)
-    return HttpResponseRedirect(reverse('show one post', args=[post_id]))
+    if request.method == 'POST':
+        try:
+            post = Post.objects.get(post_id=post_id)
+            if post.likes.filter(user_id=request.user.user_id).exists():
+                post.likes.remove(request.user)
+            return HttpResponseRedirect(reverse('show one post', args=[post_id]))
+        except:
+            redirect('home')
 
 
+@require_http_methods(["GET"])
 @login_required(login_url='login')
 def show_likes(request, post_id):
-    try:
-        post = Post.objects.get(post_id=post_id)
-    except:
-        redirect('home')
+    if request.method == 'GET':
+        try:
+            post = Post.objects.get(post_id=post_id)
+        except:
+            redirect('home')
 
-    users = post.likes.all()
-    likes = post.count_likes()
-    context = {'users': users,
-               'likes': likes}
-    return render(request, 'show_likes.html', context)
+        users = post.likes.all()
+        likes = post.count_likes()
+        context = {'users': users,
+                   'likes': likes}
+        return render(request, 'show_likes.html', context)
 
 
 @login_required(login_url='login')
@@ -309,15 +325,12 @@ def follow_user(request, user_id):
     except:
         redirect('home')
 
-    if user == request.user:
+    if request.user == user:
         messages.error(request, 'You can not follow yourself.')
 
     elif not Follower.objects.filter(follow_from=request.user, follow_to=user):
-        try:
-            following = Follower.objects.create(follow_from=request.user, follow_to=user)
-            following.save()
-        except IntegrityError:
-            messages.error(request, 'You can not follow yourself.')
+        following = Follower.objects.create(follow_from=request.user, follow_to=user)
+        following.save()
 
     return HttpResponseRedirect("/profile/?uid={}".format(user_id))
 
