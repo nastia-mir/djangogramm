@@ -64,6 +64,9 @@ class Post(models.Model):
 
     objects = models.Manager()
 
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['user', 'time_created'], name='unique_post')]
+
     def count_likes(self):
         return self.likes.count()
 

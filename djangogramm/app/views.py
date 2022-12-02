@@ -12,7 +12,6 @@ from django.http import HttpResponseRedirect
 from django.views.decorators.http import require_http_methods
 from django.urls import reverse
 from django.db.models import Q
-from django.db import IntegrityError
 from random import sample
 from .forms import DjGUserSettingsForm, ImageFormAvatar, DjGUserCreationForm, PostForm, ImageForm
 from .models import DjGUser, Post, Image, Follower
@@ -238,21 +237,21 @@ def show_one_post(request, post_id):
     if request.method == 'GET':
         try:
             post = Post.objects.get(post_id=post_id)
+            images = post.images.all()
+            likes = post.count_likes()
+
+            if request.user in post.likes.all():
+                post_liked = True
+            else:
+                post_liked = False
+
+            context = {'post': post,
+                       'images': images,
+                       'likes': likes,
+                       'post_liked': post_liked}
+            return render(request, 'show_one_post.html', context)
         except:
             return redirect('home')
-        images = post.images.all()
-        likes = post.count_likes()
-
-        if request.user in post.likes.all():
-            post_liked = True
-        else:
-            post_liked = False
-
-        context = {'post': post,
-                   'images': images,
-                   'likes': likes,
-                   'post_liked': post_liked}
-        return render(request, 'show_one_post.html', context)
 
 
 @require_http_methods(["GET", "POST"])
@@ -308,78 +307,82 @@ def show_likes(request, post_id):
     if request.method == 'GET':
         try:
             post = Post.objects.get(post_id=post_id)
+            users = post.likes.all()
+            likes = post.count_likes()
+            context = {'users': users,
+                       'likes': likes}
+            return render(request, 'show_likes.html', context)
         except:
             redirect('home')
 
-        users = post.likes.all()
-        likes = post.count_likes()
-        context = {'users': users,
-                   'likes': likes}
-        return render(request, 'show_likes.html', context)
 
-
+@require_http_methods(["POST"])
 @login_required(login_url='login')
 def follow_user(request, user_id):
-    try:
-        user = DjGUser.objects.get(user_id=user_id)
-    except:
-        redirect('home')
+    if request.method == 'POST':
+        try:
+            user = DjGUser.objects.get(user_id=user_id)
+            if request.user == user:
+                messages.error(request, 'You can not follow yourself.')
 
-    if request.user == user:
-        messages.error(request, 'You can not follow yourself.')
+            elif not Follower.objects.filter(follow_from=request.user, follow_to=user):
+                following = Follower.objects.create(follow_from=request.user, follow_to=user)
+                following.save()
 
-    elif not Follower.objects.filter(follow_from=request.user, follow_to=user):
-        following = Follower.objects.create(follow_from=request.user, follow_to=user)
-        following.save()
-
-    return HttpResponseRedirect("/profile/?uid={}".format(user_id))
+            return HttpResponseRedirect("/profile/?uid={}".format(user_id))
+        except:
+            redirect('home')
 
 
+@require_http_methods(["POST"])
 @login_required(login_url='login')
 def unfollow_user(request, user_id):
-    try:
-        user = DjGUser.objects.get(user_id=user_id)
-    except:
-        redirect('home')
+    if request.method == 'POST':
+        try:
+            user = DjGUser.objects.get(user_id=user_id)
+            if user == request.user:
+                messages.error(request, 'You can not unfollow yourself.')
 
-    if user == request.user:
-        messages.error(request, 'You can not unfollow yourself.')
-
-    try:
-        following = Follower.objects.filter(follow_from=request.user, follow_to=user)
-        if following:
-            Follower.objects.filter(follow_from=request.user, follow_to=user).delete()
-    except:
-        return HttpResponseRedirect("/profile/?uid={}".format(user_id))
-
-    return HttpResponseRedirect("/profile/?uid={}".format(user_id))
+            try:
+                following = Follower.objects.filter(follow_from=request.user, follow_to=user)
+                if following:
+                    Follower.objects.filter(follow_from=request.user, follow_to=user).delete()
+                return HttpResponseRedirect("/profile/?uid={}".format(user_id))
+            except:
+                return HttpResponseRedirect("/profile/?uid={}".format(user_id))
+        except:
+            redirect('home')
 
 
+@require_http_methods(["GET"])
 @login_required(login_url='login')
 def show_followers(request, user_id):
-    try:
-        user = DjGUser.objects.get(user_id=user_id)
-        followers = Follower.objects.filter(follow_to=user).values('follow_from__username')
-        followers_count = len(followers)
-        context = {'followers': followers,
-                   'followers_count': followers_count,
-                   'user': user}
-        return render(request, 'followers.html', context)
-    except:
-        redirect('home')
+    if request.method == 'GET':
+        try:
+            user = DjGUser.objects.get(user_id=user_id)
+            followers = Follower.objects.filter(follow_to=user).values('follow_from__username')
+            followers_count = len(followers)
+            context = {'followers': followers,
+                       'followers_count': followers_count,
+                       'user': user}
+            return render(request, 'followers.html', context)
+        except:
+            redirect('home')
 
 
+@require_http_methods(["GET"])
 @login_required(login_url='login')
 def show_followings(request, user_id):
-    try:
-        user = DjGUser.objects.get(user_id=user_id)
-        following = Follower.objects.filter(follow_from=user).values('follow_to__username')
-        following_count = len(following)
-        context = {'following': following,
-                   'followers_count': following_count,
-                   'user': user}
-        return render(request, 'followings.html', context)
-    except:
-        redirect('home')
+    if request.method == 'GET':
+        try:
+            user = DjGUser.objects.get(user_id=user_id)
+            following = Follower.objects.filter(follow_from=user).values('follow_to__username')
+            following_count = len(following)
+            context = {'following': following,
+                       'followers_count': following_count,
+                       'user': user}
+            return render(request, 'followings.html', context)
+        except:
+            redirect('home')
 
 
