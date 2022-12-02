@@ -1,13 +1,47 @@
-<a href="/">
-    <h1>DjangoGramm</h1>
-</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <div class="row">
+            <ul class="navbar-nav nav-fill d-flex align-items-center ">
+                <div class="col">
+                     <li class="nav-item">
+                        <a class="nav-link" href="/"><h2>DjangoGramm</h2></a>
+                     </li>
+                </div>
 
+                 {% if request.user.is_authenticated %}
 
-{% if request.user.is_authenticated %}
-    <a href="{% url 'logout' %}">Logout</a>
-    <p>Hello, <a href="{% url 'profile'%}">{{request.user.first_name}}</a> </p>
-    <a href="{% url 'new post' %}">New post</a>
-{% else %}
-    <a href="{% url 'login' %}">Login</a>
-    <a href="{% url 'register' %}">Register</a>
-{% endif %}
+                 <div class="col-6">
+                     <li class="nav-item">
+                         Hello, <a class="nav-link" href="{% url 'profile'%}">{{request.user.first_name}}</a>
+                     </li>
+                 </div>
+
+                 <div class="col-4">
+                     <li class="nav-item">
+                         <a class="nav-link" href="{% url 'new post' %}">New post</a>
+                     </li>
+                 </div>
+
+                <div class="col-4 ">
+                     <li class="nav-item">
+                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                     </li>
+                 </div>
+
+                {% else %}
+                <div class="col-4">
+                      <li class="nav-item">
+                          <a class="nav-link" href="{% url 'login' %}">Login</a>
+                     </li>
+                </div>
+
+                <div class="col-4">
+                      <li class="nav-item">
+                         <a class="nav-link" href="{% url 'register' %}">Register</a>
+                     </li>
+                </div>
+                {% endif %}
+             </ul>
+        </div>
+    </div>
+</nav>

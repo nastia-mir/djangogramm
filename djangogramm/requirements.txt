@@ -16,3 +16,5 @@ django-taggit==3.0.0
 waitress==2.1.2
 
 six==1.16.0
+
+django-cloudinary-storage==0.3.0

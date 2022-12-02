@@ -1,22 +1,22 @@
 {% extends  "main.html" %}
 
 {% block content %}
-<div>
+<div class="mb-3">
     <form method="POST" action="">
         {% csrf_token %}
 
         <p>
-            <label>Email</label>
-            <input type="email" name="email" placeholder="Enter your email"/>
+            <label class="form-label">Email</label>
+            <input class="form-control" type="email" name="email" placeholder="Enter your email"/>
         </p>
 
         <p>
-            <label>Password</label>
-            <input type="password" name="password" placeholder="Enter your password"/>
+            <label class="form-label">Password</label>
+            <input class="form-control" type="password" name="password" placeholder="Enter your password"/>
         </p>
 
         <p>
-            <input type="submit" value="Log in" />
+            <input class="btn btn-primary" type="submit" value="Log in" />
         </p>
 
 

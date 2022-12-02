@@ -60,7 +60,6 @@ class TestAuth(TestCase):
         self.assertTemplateUsed(response, 'login.html')
 
     def test_login_POST_logged_in_correctly(self):
-        self.client.post(self.register_url, self.user)
         response = self.client.post(self.login_url, self.user_login_correctly)
         self.assertEqual(response.status_code, 302)
 
