@@ -12,6 +12,7 @@ from django.http import HttpResponseRedirect
 from django.views.decorators.http import require_http_methods
 from django.urls import reverse
 from django.db.models import Q
+from django.db import IntegrityError
 from random import sample
 from .forms import DjGUserSettingsForm, ImageFormAvatar, DjGUserCreationForm, PostForm, ImageForm
 from .models import DjGUser, Post, Image, Follower
@@ -254,7 +255,7 @@ def show_one_post(request, post_id):
             return redirect('home')
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods(["GET", "POST", "DELETE"])
 @login_required(login_url='login')
 def delete_post(request, post_id):
     if request.method == 'POST':
