@@ -1,11 +1,21 @@
+<div class="likes">
 {% if not post_liked %}
-    <form class="likeForm" action="{% url 'like' post.post_id %}" method="POST" data-url="{% url 'like' post.post_id %}">
+    <form class="likeForm" data-postId="{{post.post_id}}" data-likes="{{likes}}" action="{% url 'like' post.post_id %}" method="POST" >
+        <p>{{likes}} users
+            <a href="{% url 'show likes' post.post_id %}"> liked</a> this post
+    </p>
+
         {% csrf_token %}
-        <button type="submit" class="btn btn-primary" name="like-btn">Like</button>
+        <button type="submit" class="btn btn-primary like-btn" name="like-btn">Like</button>
     </form>
 {% else %}
-    <form action="{% url 'unlike' post.post_id %}" method="POST">
+    <form class="unlikeForm" data-postId="{{post.post_id}}" action="{% url 'unlike' post.post_id %}" method="POST">
+        <p>{{likes}} users
+            <a href="{% url 'show likes' post.post_id %}"> liked</a> this post
+    </p>
+
         {% csrf_token %}
-        <button type="submit" class="btn btn-secondary" name="like-btn">Unlike</button>
+        <button type="submit" class="btn btn-secondary like-btn" name="like-btn">Unlike</button>
     </form>
 {% endif %}
+</div>
