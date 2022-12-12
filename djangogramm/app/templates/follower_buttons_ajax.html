@@ -1,0 +1,75 @@
+<div class="justify-content-center">
+    {% if not active_user_follows %}
+
+    <form class="followForm" data-uid="{{user.user_id}}" data-followers="{{followers}}"
+          action="{% url 'follow' uid %}" method="POST">
+
+        <p class="card-text">
+            {{followers}}
+            <a href="{% url 'followers' user.user_id %}">Followers</a>
+        </p>
+        <p class="card-text">
+            {{followings}}
+            <a href="{% url 'following' user.user_id %}">Follows</a>
+        </p>
+        <br/>
+
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary" name="follow-btn">Follow</button>
+    </form>
+
+    <form class="unfollowForm d-none" data-uid="{{user.user_id}}" data-followers="{{followers}}"
+          action="{% url 'unfollow' uid %}" method="POST">
+
+        <p class="card-text">
+            {{followers}}
+            <a href="{% url 'followers' user.user_id %}">Followers</a>
+        </p>
+        <p class="card-text">
+            {{followings}}
+            <a href="{% url 'following' user.user_id %}">Follows</a>
+        </p>
+        <br/>
+
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary" name="follow-btn">Unfollow</button>
+    </form>
+
+    {% else %}
+
+    <form class="followForm d-none" data-uid="{{user.user_id}}" data-followers="{{followers}}"
+          action="{% url 'follow' uid %}" method="POST">
+
+        <p class="card-text">
+            {{followers}}
+            <a href="{% url 'followers' user.user_id %}">Followers</a>
+        </p>
+        <p class="card-text">
+            {{followings}}
+            <a href="{% url 'following' user.user_id %}">Follows</a>
+        </p>
+        <br/>
+
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary" name="follow-btn">Follow</button>
+    </form>
+
+    <form class="unfollowForm" data-uid="{{user.user_id}}" data-followers="{{followers}}"
+          action="{% url 'unfollow' uid %}" method="POST">
+
+        <p class="card-text">
+            {{followers}}
+            <a href="{% url 'followers' user.user_id %}">Followers</a>
+        </p>
+        <p class="card-text">
+            {{followings}}
+            <a href="{% url 'following' user.user_id %}">Follows</a>
+        </p>
+        <br/>
+
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary" name="follow-btn">Unfollow</button>
+    </form>
+
+    {% endif %}
+</div>
