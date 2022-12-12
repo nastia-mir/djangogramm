@@ -5,8 +5,7 @@ $(document).ready( function() {
         const post_id = $(this).attr("data-postId");
         const url = $(this).attr('action')
 
-        let res;
-        const likes_count = parseInt($(this).attr("data-likes"))
+        var likes = parseInt($('span').html())
 
         $.ajax(
         {
@@ -16,11 +15,11 @@ $(document).ready( function() {
                 'csrfmiddlewaretoken':  window.CSRF_TOKEN,
                 'post_id': post_id
             },
-            success: function( data )
+            success: function(data)
             {
                  $('.likeForm').addClass("d-none");
                  $('.unlikeForm').removeClass("d-none");
-                 likes = likes_count + 1
+                 $('.likeCount').text(likes + 1)
             }
          })
     });
@@ -30,8 +29,7 @@ $(document).ready( function() {
         const post_id = $(this).attr("data-postId");
         const url = $(this).attr('action')
 
-        let res;
-        const likes = parseInt($(this).attr("data-likes"))
+        var likes = parseInt(parseInt($('span').html()))
 
         $.ajax(
         {
@@ -41,11 +39,11 @@ $(document).ready( function() {
                 'csrfmiddlewaretoken': window.CSRF_TOKEN,
                 'post_id': post_id
             },
-            success: function( data )
+            success: function(data)
             {
                  $('.unlikeForm').addClass("d-none");
                  $('.likeForm').removeClass("d-none");
-                 res = likes - 1
+                 $('.likeCount').text(likes - 1)
             }
          })
     });
@@ -55,8 +53,7 @@ $(document).ready( function() {
         const user_id = $(this).attr("data-uid");
         const url = $(this).attr('action')
 
-        let res;
-        const followers = parseInt($(this).attr("data-followers"))
+        var followers = parseInt($('span').html())
 
         $.ajax(
         {
@@ -66,11 +63,11 @@ $(document).ready( function() {
                 'csrfmiddlewaretoken': window.CSRF_TOKEN,
                 'user_id': user_id
             },
-            success: function( data )
+            success: function(data)
             {
                  $('.followForm').addClass("d-none");
                  $('.unfollowForm').removeClass("d-none");
-                 res = followers - 1
+                 $('.followerCount').text(followers + 1)
             }
          })
     });
@@ -80,8 +77,7 @@ $(document).ready( function() {
         const user_id = $(this).attr("data-uid");
         const url = $(this).attr('action')
 
-        let res;
-        const followers = parseInt($(this).attr("data-followers"))
+        var followers = parseInt($('span').html())
 
         $.ajax(
         {
@@ -91,11 +87,11 @@ $(document).ready( function() {
                 'csrfmiddlewaretoken': window.CSRF_TOKEN,
                 'user_id': user_id
             },
-            success: function( data )
+            success: function(data)
             {
                  $('.unfollowForm').addClass("d-none");
                  $('.followForm').removeClass("d-none");
-                 res = followers - 1
+                 $('.followerCount').text(followers - 1)
             }
          })
     });

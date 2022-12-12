@@ -5,7 +5,7 @@
           action="{% url 'follow' uid %}" method="POST">
 
         <p class="card-text">
-            {{followers}}
+            <span class="followerCount"> {{followers}}</span>
             <a href="{% url 'followers' user.user_id %}">Followers</a>
         </p>
         <p class="card-text">
@@ -22,7 +22,7 @@
           action="{% url 'unfollow' uid %}" method="POST">
 
         <p class="card-text">
-            {{followers}}
+            <span class="followerCount"> {{followers}}</span>
             <a href="{% url 'followers' user.user_id %}">Followers</a>
         </p>
         <p class="card-text">
@@ -41,7 +41,7 @@
           action="{% url 'follow' uid %}" method="POST">
 
         <p class="card-text">
-            {{followers}}
+            <span class="followerCount"> {{followers}}</span>
             <a href="{% url 'followers' user.user_id %}">Followers</a>
         </p>
         <p class="card-text">
@@ -58,7 +58,7 @@
           action="{% url 'unfollow' uid %}" method="POST">
 
         <p class="card-text">
-            {{followers}}
+            <span class="followerCount"> {{followers}}</span>
             <a href="{% url 'followers' user.user_id %}">Followers</a>
         </p>
         <p class="card-text">
