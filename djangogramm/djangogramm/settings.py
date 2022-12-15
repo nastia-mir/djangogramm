@@ -78,9 +78,8 @@ TEMPLATES = [
 ]
 
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.facebook.FacebookOAuth2',
-    'social_core.backends.twitter.TwitterOAuth',
     'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.google.GoogleOAuth2',
 
     'django.contrib.auth.backends.ModelBackend',
 )
@@ -174,6 +173,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SOCIAL_AUTH_GITHUB_KEY = '10d4c67a53da470b7483'
 SOCIAL_AUTH_GITHUB_SECRET = 'c59d4c7bf27c4c764cc7660839eec7d1447ce78a'
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '66585277248-n78b5t8q70osi6dfumnv16v0dj7q7g8e.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
 
 
 

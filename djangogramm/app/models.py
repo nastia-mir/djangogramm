@@ -22,11 +22,6 @@ class DjGUserManager(BaseUserManager):
         return self.create_user(email, username, first_name, password, **other_fields)
 
     def create_user(self, email=None, username=None, first_name=None, password=None, **other_fields):
-        values = {'email': email, 'username': username, 'first_name': first_name, 'password': password}
-        for value in values:
-            if not values[value]:
-                raise ValueError("You must provide a '{}'.".format(value))
-
         user = self.model(email=email, username=username, first_name=first_name, **other_fields)
         user.set_password(password)
         user.save()
@@ -38,7 +33,7 @@ class DjGUser(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(max_length=254, unique=True)
     username = models.CharField(max_length=150, unique=True)
-    first_name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100, null=True)
     last_name = models.CharField(max_length=100, blank=True)
     bio = models.TextField(null=True, blank=True)
     avatar = models.ForeignKey(Image, on_delete=models.CASCADE, null=True, blank=True)
