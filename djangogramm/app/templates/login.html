@@ -16,16 +16,21 @@
         </p>
 
         <p>
-            <input class="btn btn-primary" type="submit" value="Log in" />
+            <input class="btn btn-primary" type="submit" value="Log in"/>
         </p>
-
-
     </form>
 
-     <div>
-         <p>Don't have a DjangoGramm account?</p>
-         <a href="{% url 'register' %}">Create it!</a>
-     </div>
+    <p>-- OR --</p>
+    <a class="btn btn-secondary" href="{% url 'social:begin' 'github' %}">Login with Github</a>
+    <br/><br/>
+
+    <a class="btn btn-secondary" href="{% url 'social:begin' 'google-oauth2' %}">Login with Google</a>
+    <br/><br/>
+
+    <div>
+        <p>Don't have a DjangoGramm account?</p>
+        <a href="{% url 'register' %}">Create it!</a>
+    </div>
 
 </div>
 {% endblock %}

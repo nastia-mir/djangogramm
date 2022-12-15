@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'cloudinary',
     'app',
     'taggit',
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'djangogramm.urls'
@@ -68,10 +70,25 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.google.GoogleOAuth2',
+
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+LOGIN_REDIRECT_URL = 'home'
+
 
 WSGI_APPLICATION = 'djangogramm.wsgi.application'
 
@@ -153,6 +170,12 @@ PASSWORD_RESET_TIMEOUT = 14400
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SOCIAL_AUTH_GITHUB_KEY = '10d4c67a53da470b7483'
+SOCIAL_AUTH_GITHUB_SECRET = 'c59d4c7bf27c4c764cc7660839eec7d1447ce78a'
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '66585277248-n78b5t8q70osi6dfumnv16v0dj7q7g8e.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
 
 
 
