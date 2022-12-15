@@ -21,7 +21,7 @@ class DjGUserManager(BaseUserManager):
         other_fields.setdefault('is_superuser', True)
         return self.create_user(email, username, first_name, password, **other_fields)
 
-    def create_user(self, email, username, first_name, password, **other_fields):
+    def create_user(self, email=None, username=None, first_name=None, password=None, **other_fields):
         values = {'email': email, 'username': username, 'first_name': first_name, 'password': password}
         for value in values:
             if not values[value]:
