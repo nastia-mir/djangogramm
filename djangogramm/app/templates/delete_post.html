@@ -1,16 +1,14 @@
 {% extends  "main.html" %}
 
 {% block content %}
-{% if request.user.is_authenticated and request.user == post.user %}
+{% if request.user == post.user %}
 
-    <h2>Are you sure you want to delete post {{post.post_id}}?</h2>
+<h2>Are you sure you want to delete post {{post.post_id}}?</h2>
 
-     <form method="POST">
-          {% csrf_token %}
-          <input type="submit" class="btn btn-danger" value="Delete post" />
-     </form>
+<form method="POST">
+    {% csrf_token %}
+    <input type="submit" class="btn btn-danger" value="Delete post"/>
+</form>
 
 {% endif %}
-
-
 {% endblock %}

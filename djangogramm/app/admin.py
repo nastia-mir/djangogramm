@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import DjGUser, Image, Post
+from app.models import DjGUser, Image, Post
 
 admin.site.register(DjGUser)
 admin.site.register(Image)

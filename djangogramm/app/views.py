@@ -1,8 +1,10 @@
+from random import sample
+
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
 from django.contrib.sites.shortcuts import get_current_site
+from django.shortcuts import render, redirect
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_str, force_bytes
 from django.core.mail import send_mail
@@ -12,11 +14,10 @@ from django.http import HttpResponseRedirect
 from django.views.decorators.http import require_http_methods
 from django.urls import reverse
 from django.db.models import Q
-from django.db import IntegrityError
-from random import sample
-from .forms import DjGUserSettingsForm, ImageFormAvatar, DjGUserCreationForm, PostForm, ImageForm
-from .models import DjGUser, Post, Image, Follower
-from .tokens import account_activation_token
+
+from app.forms import DjGUserSettingsForm, ImageFormAvatar, DjGUserCreationForm, PostForm, ImageForm
+from app.models import DjGUser, Post, Image, Follower
+from app.tokens import account_activation_token
 
 
 @require_http_methods(["GET"])
@@ -25,7 +26,7 @@ def home(request):
     if request.method == "GET":
         followings = Follower.objects.filter(follow_from=request.user)
 
-        posts = Post.objects.filter(Q(user=request.user) | Q(user__in=followings.values('follow_to'))).\
+        posts = Post.objects.filter(Q(user=request.user) | Q(user__in=followings.values('follow_to'))). \
             prefetch_related('images').order_by('-time_created')
         not_followed = list(DjGUser.objects.exclude(Q(username=request.user.username) |
                                                     Q(username__in=followings.values('follow_to__username'))))
@@ -46,10 +47,10 @@ def login_user(request):
         password = request.POST.get('password')
         try:
             user = DjGUser.objects.get(email=email)
+            user = authenticate(request, email=email, password=password)
         except:
             messages.error(request, 'User does not exist.')
 
-        user = authenticate(request, email=email, password=password)
         if user is not None:
             if user.is_verified:
                 login(request, user)
@@ -361,7 +362,7 @@ def show_followers(request, user_id):
     if request.method == 'GET':
         try:
             user = DjGUser.objects.get(user_id=user_id)
-            followers = Follower.objects.filter(follow_to=user).values('follow_from__username')
+            followers = Follower.objects.filter(follow_to=user).values('follow_from__username', 'follow_from__user_id')
             followers_count = len(followers)
             context = {'followers': followers,
                        'followers_count': followers_count,
@@ -377,7 +378,7 @@ def show_followings(request, user_id):
     if request.method == 'GET':
         try:
             user = DjGUser.objects.get(user_id=user_id)
-            following = Follower.objects.filter(follow_from=user).values('follow_to__username')
+            following = Follower.objects.filter(follow_from=user).values('follow_to__username', 'follow_to__user_id')
             following_count = len(following)
             context = {'following': following,
                        'followers_count': following_count,
@@ -385,5 +386,3 @@ def show_followings(request, user_id):
             return render(request, 'followings.html', context)
         except:
             redirect('home')
-
-

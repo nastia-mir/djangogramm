@@ -3,45 +3,45 @@
         <div class="row">
             <ul class="navbar-nav nav-fill d-flex align-items-center ">
                 <div class="col">
-                     <li class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link" href="/"><h2>DjangoGramm</h2></a>
-                     </li>
+                    </li>
                 </div>
 
-                 {% if request.user.is_authenticated %}
+                {% if request.user.is_authenticated %}
 
-                 <div class="col-6">
-                     <li class="nav-item">
-                         Hello, <a class="nav-link" href="{% url 'profile'%}">{{request.user.first_name}}</a>
-                     </li>
-                 </div>
+                <div class="col-6">
+                    <li class="nav-item">
+                        Hello, <a class="nav-link" href="{% url 'profile'%}">{{request.user.first_name}}</a>
+                    </li>
+                </div>
 
-                 <div class="col-4">
-                     <li class="nav-item">
-                         <a class="nav-link" href="{% url 'new post' %}">New post</a>
-                     </li>
-                 </div>
+                <div class="col-4">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'new post' %}">New post</a>
+                    </li>
+                </div>
 
                 <div class="col-4 ">
-                     <li class="nav-item">
-                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                     </li>
-                 </div>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                    </li>
+                </div>
 
                 {% else %}
                 <div class="col-4">
-                      <li class="nav-item">
-                          <a class="nav-link" href="{% url 'login' %}">Login</a>
-                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
                 </div>
 
                 <div class="col-4">
-                      <li class="nav-item">
-                         <a class="nav-link" href="{% url 'register' %}">Register</a>
-                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">Register</a>
+                    </li>
                 </div>
                 {% endif %}
-             </ul>
+            </ul>
         </div>
     </div>
 </nav>

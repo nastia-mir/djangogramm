@@ -3,14 +3,14 @@
 {% block content %}
 
 {% if request.user.is_authenticated %}
-    <h2>{{request.user.first_name}}, are you sure you want to delete your profile?</h2>
+<h2>{{request.user.first_name}}, are you sure you want to delete your profile?</h2>
 
-     <form method="POST">
-          {% csrf_token %}
-          <input type="submit" class="btn btn-danger" value="Delete profile" />
-     </form>
+<form method="POST">
+    {% csrf_token %}
+    <input type="submit" class="btn btn-danger" value="Delete profile"/>
+</form>
 
 {% else %}
-    <p>You need to log in to access this page.</p>
+<p>You need to log in to access this page.</p>
 {% endif %}
 {% endblock %}
