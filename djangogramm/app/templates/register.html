@@ -5,14 +5,14 @@
     <form method="POST" action="">
         {% csrf_token %}
         {{form.as_p}}
-        <input type="submit" class="btn btn-primary" value="Register" />
+        <input type="submit" class="btn btn-primary" value="Register"/>
     </form>
 </div>
 
-    <div>
-         <p>Already have an account?</p>
-         <a href="{% url 'login' %}">Log in!</a>
-     </div>
+<div>
+    <p>Already have an account?</p>
+    <a href="{% url 'login' %}">Log in!</a>
+</div>
 
 
 {% endblock %}

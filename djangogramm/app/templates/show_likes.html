@@ -1,15 +1,15 @@
 {% extends  "main.html" %}
 
 {% block content %}
-    {% if users|length > 0 %}
+{% if users|length > 0 %}
 
-        <h2>{{likes}} users liked this post:</h2>
+<h2>{{likes}} users liked this post:</h2>
 
-        {% for user in users %}
-            <p><a href="/profile/?uid={{user.user_id}}">{{user.username}}</a></p>
-        {% endfor %}
+{% for user in users %}
+<p><a href="/profile/?uid={{user.user_id}}">{{user.username}}</a></p>
+{% endfor %}
 
-    {% else %}
-        <h2>No one liked this post.</h2>
-    {% endif %}
+{% else %}
+<h2>No one liked this post.</h2>
+{% endif %}
 {% endblock %}

@@ -8,12 +8,12 @@
         {% csrf_token %}
         {{user_form.as_p}}
         {{avatar_form.as_p}}
-        <input type="submit" class="btn btn-primary" value="Save" />
+        <input type="submit" class="btn btn-primary" value="Save"/>
     </form>
 </div>
 
 {% else %}
-    <p>You need to log in to access this page.</p>
+<p>You need to log in to access this page.</p>
 {% endif %}
 
 

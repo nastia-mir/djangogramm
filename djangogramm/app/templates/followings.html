@@ -5,7 +5,7 @@
     <h2>{{user.username}} follows {{following_count}} users:</h2>
 
     {% for usr in following %}
-        <p><a href="/profile/?uid={{usr.user_id}}">{{usr.follow_to__username}}</a></p>
+        <p><a href="/profile/?uid={{usr.follow_to__user_id}}">{{usr.follow_to__username}}</a></p>
     {% endfor %}
 
 {% endblock %}

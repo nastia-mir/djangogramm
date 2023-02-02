@@ -1,6 +1,6 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.forms import ModelForm, ImageField, ClearableFileInput, TextInput, Textarea
-from .models import DjGUser, Post, Image
+from app.models import DjGUser, Post, Image
 
 
 class DjGUserCreationForm(UserCreationForm):
