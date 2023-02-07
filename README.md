@@ -1,4 +1,4 @@
-# Djangogramm 
+# DjangoGramm 
 
 Social network for posting images.
 
